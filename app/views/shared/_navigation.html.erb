@@ -1,0 +1,30 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+  <div class="container">
+    <%= link_to "Bookmarkly", root_path, class: "navbar-brand" %>
+    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <% if user_signed_in? %>
+          <li class="nav-item">
+            <%= link_to "マイページ", mypage_path, class: "nav-link text-light" %>
+          </li>
+          <li class="nav-item">
+            <%= button_to "ログアウト", destroy_user_session_path, method: :delete, 
+                class: "btn btn-outline-light ms-2", form: { class: "d-inline-block" } %>
+          </li>
+        <% else %>
+          <li class="nav-item">
+            <%= link_to "ログイン", new_user_session_path, class: "nav-link text-light" %>
+          </li>
+          <li class="nav-item">
+            <%= link_to "新規登録", new_user_registration_path, class: "nav-link text-light" %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+</nav> 

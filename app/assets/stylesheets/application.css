@@ -74,3 +74,22 @@ body {
     padding-right: 1rem;
   }
 }
+
+/* タグリストのスタイル */
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag-list .badge {
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  transition: background-color 0.2s;
+}
+
+.tag-list .badge:hover {
+  background-color: #e9ecef;
+}

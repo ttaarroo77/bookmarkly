@@ -11,13 +11,29 @@ class BookmarksController < ApplicationController
       @bookmarks = @bookmarks.with_tag(params[:tag])
     end
     
-    # キーワード検索
-    if params[:search].present?
-      @bookmarks = @bookmarks.search(params[:search])
-    end
-    
     # タグの一覧を取得（タグクラウド用）
     @tags = current_user.bookmarks.flat_map(&:tags).uniq
+    
+    # タグの使用回数を集計
+    @tag_counts = {}
+    current_user.bookmarks.each do |bookmark|
+      bookmark.tags.each do |tag|
+        @tag_counts[tag] ||= 0
+        @tag_counts[tag] += 1
+      end
+    end
+    
+    # タグのソート
+    case params[:sort]
+    when 'count_desc'
+      @tags = @tags.sort_by { |tag| [-@tag_counts[tag], tag] }
+    when 'count_asc'
+      @tags = @tags.sort_by { |tag| [@tag_counts[tag], tag] }
+    when 'created_desc'
+      @tags = @tags.sort_by { |tag| [-current_user.bookmarks.where("? = ANY(tags)", tag).maximum(:created_at).to_i, tag] }
+    when 'created_asc'
+      @tags = @tags.sort_by { |tag| [current_user.bookmarks.where("? = ANY(tags)", tag).minimum(:created_at).to_i, tag] }
+    end
     
     # 新規ブックマーク用のインスタンス
     @bookmark = Bookmark.new

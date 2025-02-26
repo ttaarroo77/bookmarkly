@@ -1,10 +1,7 @@
 <div class="container py-4">
   <div class="row">
     <div class="col-12 mb-4">
-      <div class="d-flex justify-content-between align-items-center">
-        <h1 class="h3">ブックマーク管理</h1>
-        <%= link_to "マイページ", mypage_path, class: "btn btn-outline-secondary" %>
-      </div>
+      <h1 class="h3">ブックマーク管理</h1>
     </div>
   </div>
 
@@ -79,6 +76,39 @@
             
             <%= f.submit "追加", class: "btn btn-dark w-100" %>
           <% end %>
+        </div>
+      </div>
+      
+      <div class="card mt-4">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="h5 mb-0">タグ一覧</h3>
+            <%= form_with(url: bookmarks_path, method: :get, class: "d-flex") do |f| %>
+              <%= f.select :sort, 
+                [
+                  ['登録数が多い順', 'count_desc'],
+                  ['登録数が少ない順', 'count_asc'],
+                  ['新規登録が新しい順', 'created_desc'],
+                  ['新規登録が古い順', 'created_asc']
+                ],
+                { selected: params[:sort], include_blank: '並び替え' },
+                { class: 'form-select form-select-sm w-auto', onchange: 'this.form.submit()' }
+              %>
+            <% end %>
+          </div>
+          
+          <div class="tag-list">
+            <% if @tags.present? %>
+              <% @tags.each do |tag| %>
+                <%= link_to bookmarks_path(tag: tag), class: "badge bg-light text-dark text-decoration-none me-2 mb-2" do %>
+                  <%= tag %>
+                  <span class="ms-1 text-secondary">(<%= @tag_counts[tag] %>)</span>
+                <% end %>
+              <% end %>
+            <% else %>
+              <p class="text-muted mb-0">タグがありません</p>
+            <% end %>
+          </div>
         </div>
       </div>
     </div>
