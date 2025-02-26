@@ -44,7 +44,7 @@ gem "thruster", require: false
 gem "devise"
 
 # Use sqlite3 as the database for Active Record
-gem "sqlite3", "~> 2.5.0"
+gem "sqlite3", "~> 2.6.0"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
