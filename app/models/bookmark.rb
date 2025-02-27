@@ -32,4 +32,17 @@ class Bookmark < ApplicationRecord
   scope :search, ->(keyword) {
     where("title ILIKE ? OR url ILIKE ?", "%#{keyword}%", "%#{keyword}%") if keyword.present?
   }
+
+  # AI処理ステータスの定義
+  enum :ai_processing_status, {
+    pending: 0,
+    processing: 1,
+    completed: 2,
+    failed: 3
+  }, default: :pending
+
+  # AI概要生成の開始
+  def generate_description
+    GenerateBookmarkSummaryJob.perform_later(id)
+  end
 end

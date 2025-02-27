@@ -56,18 +56,11 @@ class BookmarksController < ApplicationController
   def create
     @bookmark = current_user.bookmarks.build(bookmark_params)
     
-    respond_to do |format|
-      if @bookmark.save
-        format.html { redirect_to bookmarks_path, notice: 'ブックマークを追加しました。' }
-        format.json { render :show, status: :created, location: @bookmark }
-      else
-        format.html do
-          @bookmarks = current_user.bookmarks
-          @tags = current_user.bookmarks.flat_map(&:tags).uniq
-          render :index
-        end
-        format.json { render json: @bookmark.errors, status: :unprocessable_entity }
-      end
+    if @bookmark.save
+      @bookmark.generate_description
+      redirect_to bookmarks_path, notice: 'ブックマークを追加しました。AI概要を生成中です。'
+    else
+      render :new
     end
   end
   

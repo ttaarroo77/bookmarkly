@@ -46,6 +46,18 @@ gem "devise"
 # Use sqlite3 as the database for Active Record
 gem "sqlite3", "~> 2.5.0"
 
+# OpenAI API
+gem 'ruby-openai'
+
+# 非同期処理
+gem 'sidekiq'
+
+# HTTP通信
+gem 'faraday'
+
+# HTMLパース
+gem 'nokogiri'
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"

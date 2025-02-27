@@ -6,6 +6,28 @@
       <%= external_link_icon %>
     </a>
     
+    <% if bookmark.description.present? %>
+      <div class="mb-3">
+        <p class="mb-2"><%= bookmark.description %></p>
+        <small class="text-muted">
+          AI生成: <%= l bookmark.ai_processed_at, format: :short if bookmark.ai_processed_at %>
+        </small>
+      </div>
+    <% elsif bookmark.processing? %>
+      <div class="mb-3">
+        <div class="d-flex align-items-center text-muted">
+          <div class="spinner-border spinner-border-sm me-2"></div>
+          AI概要を生成中...
+        </div>
+      </div>
+    <% elsif bookmark.failed? %>
+      <div class="mb-3">
+        <div class="text-danger">
+          <small>AI概要の生成に失敗しました</small>
+        </div>
+      </div>
+    <% end %>
+    
     <% if bookmark.tags.present? %>
       <div class="mb-2">
         <% bookmark.tags.each do |tag| %>
