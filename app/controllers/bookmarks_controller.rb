@@ -9,6 +9,19 @@ class BookmarksController < ApplicationController
     # 新規ブックマーク用のインスタンスを作成
     @bookmark = current_user.bookmarks.build
     
+
+
+    # デバッグ用：重複チェック
+    urls = @bookmarks.map(&:url)
+    duplicate_urls = urls.select{ |url| urls.count(url) > 1 }.uniq
+    if duplicate_urls.any?
+      Rails.logger.debug "重複URL: #{duplicate_urls.inspect}"
+      # 重複を除去（一時的な対応）
+      @bookmarks = @bookmarks.to_a.uniq(&:url)
+    end
+
+
+
     # タグによるフィルタリング
     if params[:tag].present?
       # タグの前後の引用符を削除
