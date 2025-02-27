@@ -1,5 +1,7 @@
 class AiSummaryService
   def self.generate_summary(url)
+    return nil unless ENV["OPENAI_API_KEY"].present?
+    
     content = fetch_content(url)
     response = openai_client.chat(
       parameters: {
@@ -14,6 +16,7 @@ class AiSummaryService
     response.dig("choices", 0, "message", "content")
   rescue => e
     Rails.logger.error("AI概要生成エラー: #{e.message}")
+    Rails.logger.error(e.backtrace.join("\n"))
     nil
   end
 
