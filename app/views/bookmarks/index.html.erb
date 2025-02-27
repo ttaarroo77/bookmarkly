@@ -19,7 +19,7 @@
               </a>
               
               <% if bookmark.tags.present? %>
-                <div class="mb-2">
+                <div class="mt-1">
                   <% bookmark.tags.each do |tag| %>
                     <%= link_to tag, bookmarks_path(tag: tag), class: "badge bg-light text-dark text-decoration-none me-1" %>
                   <% end %>
@@ -97,16 +97,13 @@
             <% end %>
           </div>
           
-          <div class="tag-list">
-            <% if @tags.present? %>
-              <% @tags.each do |tag| %>
-                <%= link_to bookmarks_path(tag: tag), class: "badge bg-light text-dark text-decoration-none me-2 mb-2" do %>
-                  <%= tag %>
-                  <span class="ms-1 text-secondary">(<%= @tag_counts[tag] %>)</span>
-                <% end %>
+          <div class="d-flex flex-wrap">
+            <% @tags.each do |tag| %>
+              <% clean_tag = tag.to_s.gsub(/^\[|\]$/, '').gsub(/^"|"$/, '').gsub(/\\"/, '"').strip %>
+              <%= link_to bookmarks_path(tag: clean_tag), class: "badge bg-light text-dark text-decoration-none me-2 mb-2" do %>
+                <%= clean_tag %>
+                <span class="ms-1 text-secondary">(<%= @tag_counts[tag] %>)</span>
               <% end %>
-            <% else %>
-              <p class="text-muted mb-0">タグがありません</p>
             <% end %>
           </div>
         </div>
