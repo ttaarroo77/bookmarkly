@@ -51,7 +51,7 @@ Rails.application.configure do
 
   # Replace the default in-process and non-durable queuing backend for Active Job.
   config.active_job.queue_adapter = :solid_queue
-  config.solid_queue.connects_to = { database: { writing: :queue } }
+  config.solid_queue.connects_to = { database: { writing: :primary } }
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
@@ -87,10 +87,6 @@ Rails.application.configure do
   #
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
-
-  # Solid Queue用の設定
-  config.solid_queue.polling_interval = 1.second
-  config.solid_queue.dispatch_interval = 1.second
 
   # データベース接続プールの設定
   config.active_record.primary_pool_size = ENV.fetch("RAILS_MAX_THREADS") { 5 }
