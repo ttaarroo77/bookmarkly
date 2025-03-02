@@ -1,0 +1,214 @@
+<p>以下は、<strong>Bookmarkly</strong>プロジェクトにおける<strong>docs/overview_0/project-structure.md</strong> の内容です。こちらは、アプリケーションのディレクトリ構成や、主要なファイル・ディレクトリの役割についての説明を行います。</p>
+
+<hr />
+
+<h1 id="docsoverview_0project-structuremd">docs/overview_0/project-structure.md</h1>
+
+<h2 id="1-ディレクトリ構成">1. ディレクトリ構成</h2>
+
+<p>以下は、<strong>Bookmarkly</strong>アプリケーションの基本的なディレクトリ構成です。シンプルな構成にして、初心者でも理解しやすいようにしています。</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>app/
+├── controllers/         # コントローラー（Railsアプリのロジック）
+│   ├── bookmarks_controller.rb
+│   ├── sessions_controller.rb
+│   └── users_controller.rb
+├── models/              # モデル（データベースとのやりとり）
+│   ├── bookmark.rb
+│   ├── user.rb
+│   └── tag.rb
+├── views/               # ビュー（ユーザーに表示される画面）
+│   ├── bookmarks/       # ブックマーク関連のビュー
+│   ├── sessions/        # ログイン・登録関連のビュー
+│   └── users/           # ユーザー関連のビュー
+├── helpers/             # ビューで使うヘルパーメソッド
+│   └── application_helper.rb
+├── assets/              # スタイルシート、JavaScript、画像など
+│   ├── stylesheets/
+│   ├── javascripts/
+│   └── images/
+├── config/              # 設定ファイル
+│   ├── routes.rb        # アプリケーションのルーティング設定
+│   └── database.yml     # データベース接続設定
+├── db/                  # データベース関連
+│   ├── migrate/         # マイグレーションファイル
+│   └── schema.rb        # データベースのスキーマ
+├── lib/                 # ユーティリティ関数や外部APIとの連携
+├── public/              # 公開される静的ファイル
+├── test/                 # テストファイル（RSpecなど）
+│   ├── controllers/
+│   ├── models/
+│   └── integration/
+├── config.ru            # Rack設定ファイル
+├── Gemfile              # 使用するgemのリスト
+└── README.md            # プロジェクトの説明ファイル
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="2-主要ファイルの役割">2. 主要ファイルの役割</h2>
+
+<h3 id="21-appcontrollers">2.1. <code class="language-plaintext highlighter-rouge">app/controllers/</code></h3>
+<ul>
+  <li><strong>bookmarks_controller.rb</strong>
+    <ul>
+      <li>ブックマークのCRUD（作成、読み取り、更新、削除）処理を担当。</li>
+      <li>ユーザーがブックマークを登録したり、検索したり、削除したりするロジックを実装します。</li>
+    </ul>
+  </li>
+  <li><strong>sessions_controller.rb</strong>
+    <ul>
+      <li>ログイン機能を実装します。ユーザーがログイン、ログアウトするための処理を記述。</li>
+    </ul>
+  </li>
+  <li><strong>users_controller.rb</strong>
+    <ul>
+      <li>ユーザーの登録・更新・削除・プロフィール管理などを担当します。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="22-appmodels">2.2. <code class="language-plaintext highlighter-rouge">app/models/</code></h3>
+<ul>
+  <li><strong>bookmark.rb</strong>
+    <ul>
+      <li>ブックマークのデータモデル。<code class="language-plaintext highlighter-rouge">title</code>（タイトル）、<code class="language-plaintext highlighter-rouge">url</code>（URL）、<code class="language-plaintext highlighter-rouge">description</code>（概要）、<code class="language-plaintext highlighter-rouge">tags</code>（タグ）などを格納します。</li>
+    </ul>
+  </li>
+  <li><strong>user.rb</strong>
+    <ul>
+      <li>ユーザーのデータモデル。<code class="language-plaintext highlighter-rouge">email</code>（メールアドレス）、<code class="language-plaintext highlighter-rouge">password_digest</code>（パスワードのハッシュ）、<code class="language-plaintext highlighter-rouge">name</code>（名前）などを格納します。Deviseで認証を管理。</li>
+    </ul>
+  </li>
+  <li><strong>tag.rb</strong>
+    <ul>
+      <li>タグモデル。各ブックマークにタグを付け、検索機能で使用します。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="23-appviews">2.3. <code class="language-plaintext highlighter-rouge">app/views/</code></h3>
+<ul>
+  <li><strong>bookmarks/</strong>
+    <ul>
+      <li>ブックマーク関連のビュー（フォーム、一覧表示など）を管理。</li>
+    </ul>
+  </li>
+  <li><strong>sessions/</strong>
+    <ul>
+      <li>ログイン、登録、パスワードリセットなどの画面ビュー。</li>
+    </ul>
+  </li>
+  <li><strong>users/</strong>
+    <ul>
+      <li>ユーザーのプロフィールページや設定画面など。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="24-configroutesrb">2.4. <code class="language-plaintext highlighter-rouge">config/routes.rb</code></h3>
+<ul>
+  <li>アプリケーションのルーティング設定。どのURLにアクセスした際に、どのコントローラー・アクションを呼び出すかを定義。</li>
+</ul>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="no">Rails</span><span class="p">.</span><span class="nf">application</span><span class="p">.</span><span class="nf">routes</span><span class="p">.</span><span class="nf">draw</span> <span class="k">do</span>
+  <span class="n">root</span> <span class="s1">'bookmarks#index'</span>
+  <span class="n">resources</span> <span class="ss">:bookmarks</span>
+  <span class="n">resource</span> <span class="ss">:session</span><span class="p">,</span> <span class="ss">only: </span><span class="p">[</span><span class="ss">:new</span><span class="p">,</span> <span class="ss">:create</span><span class="p">,</span> <span class="ss">:destroy</span><span class="p">]</span>
+  <span class="n">resources</span> <span class="ss">:users</span><span class="p">,</span> <span class="ss">only: </span><span class="p">[</span><span class="ss">:new</span><span class="p">,</span> <span class="ss">:create</span><span class="p">,</span> <span class="ss">:show</span><span class="p">,</span> <span class="ss">:edit</span><span class="p">,</span> <span class="ss">:update</span><span class="p">]</span>
+<span class="k">end</span>
+</code></pre></div></div>
+
+<h3 id="25-dbmigrate">2.5. <code class="language-plaintext highlighter-rouge">db/migrate/</code></h3>
+<ul>
+  <li><strong>マイグレーションファイル</strong>は、データベースのスキーマを管理します。例えば、<code class="language-plaintext highlighter-rouge">create_bookmarks.rb</code> というファイルでブックマークテーブルを作成します。</li>
+</ul>
+
+<h3 id="26-test">2.6. <code class="language-plaintext highlighter-rouge">test/</code></h3>
+<ul>
+  <li><strong>RSpecテスト</strong>
+    <ul>
+      <li>コントローラー、モデル、統合テストなどを行います。正常系テストと異常系テストをカバーし、アプリケーションの動作が正しいかを確認します。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="27-gemfile">2.7. <code class="language-plaintext highlighter-rouge">Gemfile</code></h3>
+<ul>
+  <li>このファイルでは、プロジェクトで使用するgem（ライブラリ）を管理します。Devise（認証）、RSpec（テスト）、その他の便利なライブラリを追加します。</li>
+</ul>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gem</span> <span class="s1">'rails'</span><span class="p">,</span> <span class="s1">'6.1.4'</span>
+<span class="n">gem</span> <span class="s1">'devise'</span>
+<span class="n">gem</span> <span class="s1">'rspec-rails'</span>
+<span class="n">gem</span> <span class="s1">'pg'</span>  <span class="c1"># PostgreSQLのデータベースを使用</span>
+</code></pre></div></div>
+
+<h3 id="28-readmemd">2.8. <code class="language-plaintext highlighter-rouge">README.md</code></h3>
+<ul>
+  <li>プロジェクトの概要、セットアップ方法、使い方などを記載するファイルです。ポートフォリオにおいて、外部の人がプロジェクトを理解しやすいように説明します。</li>
+</ul>
+
+<hr />
+
+<h2 id="3-ルーティング">3. ルーティング</h2>
+
+<ul>
+  <li><strong>ログイン関連</strong>
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">/login</code>: ログイン画面</li>
+      <li><code class="language-plaintext highlighter-rouge">/register</code>: ユーザー登録画面</li>
+    </ul>
+  </li>
+  <li><strong>ブックマーク関連</strong>
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">/bookmarks</code>: ブックマークの一覧ページ</li>
+      <li><code class="language-plaintext highlighter-rouge">/bookmarks/new</code>: 新しいブックマークを追加するフォーム</li>
+      <li><code class="language-plaintext highlighter-rouge">/bookmarks/:id</code>: 特定のブックマークの詳細ページ</li>
+    </ul>
+  </li>
+  <li><strong>マイページ関連</strong>
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">/mypage</code>: ユーザーのプロフィール管理画面</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<h2 id="4-データベース設計">4. データベース設計</h2>
+
+<h3 id="bookmarks-テーブル"><code class="language-plaintext highlighter-rouge">bookmarks</code> テーブル</h3>
+<p>| カラム       | 型         | 備考                     |
+|————–|————|————————–|
+| id           | bigint     | 自動採番                  |
+| title        | text       | ブックマークのタイトル    |
+| url          | text       | ブックマークのURL         |
+| description  | text       | ブックマークの概要       |
+| user_id      | uuid       | <code class="language-plaintext highlighter-rouge">users</code>テーブルの外部キー |
+| tags         | text[]     | タグ（配列として保存）     |
+| created_at   | timestamptz| 作成日時                 |
+| updated_at   | timestamptz| 更新日時                 |</p>
+
+<h3 id="users-テーブル"><code class="language-plaintext highlighter-rouge">users</code> テーブル</h3>
+<p>| カラム        | 型       | 備考                         |
+|—————|———-|——————————|
+| id            | uuid     | 自動生成                     |
+| email         | text     | メールアドレス               |
+| password_digest | text   | パスワードのハッシュ         |
+| name          | text     | ユーザー名                   |
+| created_at    | timestamptz | 作成日時                    |
+| updated_at    | timestamptz | 更新日時                    |</p>
+
+<hr />
+
+<h2 id="5-進捗管理とフィードバック">5. 進捗管理とフィードバック</h2>
+
+<ul>
+  <li><strong>毎週進捗確認</strong>: 定期的に進捗を確認し、遅れが生じた場合は計画を調整</li>
+  <li><strong>コードレビュー</strong>: メンターやオンラインコミュニティでフィードバックを受け、改善点を見つける</li>
+</ul>
+
+<hr />
+
+<p>この構成を基に、必要な機能の実装を段階的に進め、最終的にはAI機能や拡張性を加えていくことで、ポートフォリオとして優れたものを作り上げることができます。</p>

@@ -1,0 +1,113 @@
+<div class="container py-4">
+  <div class="row">
+    <div class="col-12 mb-4">
+      <h1 class="h3">ブックマーク管理</h1>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- 左側：ブックマーク一覧 -->
+    <div class="col-lg-7 mb-4">
+      <% if @bookmarks.present? %>
+        <% @bookmarks.each do |bookmark| %>
+          <div class="card mb-3">
+            <div class="card-body">
+              <h2 class="h5 mb-1"><%= bookmark.title %></h2>
+              <a href="<%= bookmark.url %>" class="text-truncate d-block mb-2 small text-secondary" target="_blank">
+                <%= bookmark.url %>
+                <%= external_link_icon %>
+              </a>
+              
+              <% if bookmark.tags.present? %>
+                <div class="mt-1">
+                  <% bookmark.tags.each do |tag| %>
+                    <%= link_to tag, bookmarks_path(tag: tag), class: "badge bg-light text-dark text-decoration-none me-1" %>
+                  <% end %>
+                </div>
+              <% end %>
+              
+              <div class="d-flex justify-content-end">
+                <%= link_to "編集", edit_bookmark_path(bookmark), class: "btn btn-sm btn-outline-secondary me-2" %>
+                <%= link_to "削除", bookmark_path(bookmark), 
+                    data: { turbo_method: :delete, turbo_confirm: "本当に削除しますか？" },
+                    class: "btn btn-sm btn-outline-danger" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="alert alert-info">
+          ブックマークがありません。新しいブックマークを追加してください。
+        </div>
+      <% end %>
+    </div>
+
+    <!-- 右側：新規追加フォーム -->
+    <div class="col-lg-5">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="h4 mb-3">新規ブックマーク</h2>
+          
+          <%= form_with(model: @bookmark, local: true) do |f| %>
+            <% if @bookmark.errors.any? %>
+              <div class="alert alert-danger">
+                <ul class="mb-0">
+                  <% @bookmark.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+            
+            <div class="mb-3">
+              <%= f.label :url, "URL", class: "form-label" %>
+              <%= f.url_field :url, class: "form-control" %>
+            </div>
+            
+            <div class="mb-3">
+              <%= f.label :title, "タイトル", class: "form-label" %>
+              <%= f.text_field :title, class: "form-control" %>
+            </div>
+            
+            <div class="mb-4">
+              <%= f.label :tags_text, "タグ（カンマ区切り）", class: "form-label" %>
+              <%= f.text_field :tags_text, class: "form-control" %>
+            </div>
+            
+            <%= f.submit "追加", class: "btn btn-dark w-100" %>
+          <% end %>
+        </div>
+      </div>
+      
+      <div class="card mt-4">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="h5 mb-0">タグ一覧</h3>
+            <%= form_with(url: bookmarks_path, method: :get, class: "d-flex") do |f| %>
+              <%= f.select :sort, 
+                [
+                  ['登録数が多い順', 'count_desc'],
+                  ['登録数が少ない順', 'count_asc'],
+                  ['新規登録が新しい順', 'created_desc'],
+                  ['新規登録が古い順', 'created_asc']
+                ],
+                { selected: params[:sort], include_blank: '並び替え' },
+                { class: 'form-select form-select-sm w-auto', onchange: 'this.form.submit()' }
+              %>
+            <% end %>
+          </div>
+          
+          <div class="d-flex flex-wrap">
+            <% @tags.each do |tag| %>
+              <% clean_tag = tag.to_s.gsub(/^\[|\]$/, '').gsub(/^"|"$/, '').gsub(/\\"/, '"').strip %>
+              <%= link_to bookmarks_path(tag: clean_tag), class: "badge bg-light text-dark text-decoration-none me-2 mb-2" do %>
+                <%= clean_tag %>
+                <span class="ms-1 text-secondary">(<%= @tag_counts[tag] %>)</span>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
