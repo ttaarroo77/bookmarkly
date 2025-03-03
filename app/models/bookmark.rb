@@ -2,8 +2,14 @@ class Bookmark < ApplicationRecord
   belongs_to :user
   
   # バリデーション
-  validates :url, presence: true, format: { with: URI::regexp(%w(http https)), message: "は有効なURLではありません" }
+  validates :url, presence: true, 
+                 format: { with: URI::regexp(%w(http https)), message: "は有効なURLではありません" }
+  # 同じユーザーの同じURLの登録を防ぐ
+  validates :url, uniqueness: { scope: :user_id, message: "は既に登録されています" }
   validates :title, presence: true
+  
+  # URLを正規化するコールバック
+  before_validation :normalize_url
   
   # タグをカンマ区切りの文字列として取得するゲッター
   def tags_text
@@ -43,6 +49,15 @@ class Bookmark < ApplicationRecord
 
   # AI概要生成の開始
   def generate_description
-    GenerateBookmarkSummaryJob.perform_later(id)
+    ::GenerateBookmarkSummaryWorker.perform_async(id)
+  end
+
+  private
+
+  def normalize_url
+    return if url.blank?
+    self.url = url.strip.downcase
+    # URLがhttp(s)://で始まっていない場合、https://を追加
+    self.url = "https://#{url}" unless url.start_with?('http://', 'https://')
   end
 end

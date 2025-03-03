@@ -4,7 +4,7 @@ class BookmarksController < ApplicationController
   
   # ブックマーク一覧
   def index
-    @bookmarks = current_user.bookmarks
+    @bookmarks = current_user.bookmarks.order(created_at: :desc)
     
     # タグによるフィルタリング
     if params[:tag].present?
@@ -55,12 +55,19 @@ class BookmarksController < ApplicationController
   # ブックマーク作成
   def create
     @bookmark = current_user.bookmarks.build(bookmark_params)
-    
-    if @bookmark.save
-      @bookmark.generate_description
-      redirect_to bookmarks_path, notice: 'ブックマークを追加しました。AI概要を生成中です。'
-    else
-      render :new
+
+    respond_to do |format|
+      if @bookmark.save
+        @bookmark.generate_description
+        format.turbo_stream { redirect_to bookmarks_path, notice: 'ブックマークを追加しました。' }
+        format.html { redirect_to bookmarks_path, notice: 'ブックマークを追加しました。' }
+      else
+        # エラーメッセージを設定
+        error_message = @bookmark.errors.full_messages.join(', ')
+        flash.now[:alert] = error_message
+        format.turbo_stream { render :new, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_entity }
+      end
     end
   end
   
