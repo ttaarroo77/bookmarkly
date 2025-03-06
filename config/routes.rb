@@ -5,7 +5,12 @@ Rails.application.routes.draw do
   root 'bookmarks#index'
   
   # ブックマーク関連のルーティング
-  resources :bookmarks
+  resources :bookmarks do
+    collection do
+      get :check_exists
+      post :save_from_extension  # 拡張機能専用のエンドポイント
+    end
+  end
   
   # ユーザー関連のルーティング
   get 'mypage', to: 'users#show', as: :mypage
@@ -14,6 +19,9 @@ Rails.application.routes.draw do
   
   # タグ関連のルーティング（必要な場合）
   get 'bookmarks/tag/:tag', to: 'bookmarks#index', as: :bookmarks_by_tag
+
+  # 拡張機能用の認証状態確認エンドポイント
+  get '/auth/status', to: 'sessions#status'
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

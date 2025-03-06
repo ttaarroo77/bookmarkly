@@ -55,18 +55,34 @@ class BookmarksController < ApplicationController
   # ブックマーク作成
   def create
     @bookmark = current_user.bookmarks.build(bookmark_params)
-
+    
+    # 同じURLのブックマークが既に存在するか確認
+    existing_bookmark = current_user.bookmarks.find_by(url: @bookmark.url)
+    
     respond_to do |format|
-      if @bookmark.save
+      if existing_bookmark
+        # 既存のブックマークが見つかった場合
+        format.html { 
+          flash[:alert] = "このURLは既にブックマークに登録されています。"
+          redirect_to edit_bookmark_path(existing_bookmark)
+        }
+        format.json { render json: { status: 'error', message: 'このURLは既に登録されています', existing_bookmark: existing_bookmark }, status: :unprocessable_entity }
+      elsif @bookmark.save
         @bookmark.generate_description
-        format.turbo_stream { redirect_to bookmarks_path, notice: 'ブックマークを追加しました。' }
-        format.html { redirect_to bookmarks_path, notice: 'ブックマークを追加しました。' }
+        format.html { redirect_to bookmarks_path, notice: "ブックマークを追加しました。" }
+        format.json { render json: { status: 'success', bookmark: @bookmark }, status: :created }
+        format.turbo_stream
       else
-        # エラーメッセージを設定
-        error_message = @bookmark.errors.full_messages.join(', ')
-        flash.now[:alert] = error_message
-        format.turbo_stream { render :new, status: :unprocessable_entity }
-        format.html { render :new, status: :unprocessable_entity }
+        # エラーメッセージをログに出力
+        Rails.logger.error("Bookmark save error: #{@bookmark.errors.full_messages.join(', ')}")
+        
+        # 新規作成フォームを表示
+        @tags = Tag.all
+        format.html { 
+          flash.now[:alert] = @bookmark.errors.full_messages.join(', ')
+          render :new, status: :unprocessable_entity 
+        }
+        format.turbo_stream { render :create, status: :unprocessable_entity }
       end
     end
   end
@@ -90,6 +106,56 @@ class BookmarksController < ApplicationController
     respond_to do |format|
       format.html { redirect_to bookmarks_path, notice: 'ブックマークを削除しました。' }
       format.json { head :no_content }
+    end
+  end
+  
+  def check_exists
+    url = params[:url]
+    Rails.logger.info("Checking if URL exists: #{url}")
+    
+    if url.blank?
+      Rails.logger.warn("URL parameter is blank")
+      return render json: { error: "URL is required" }, status: :bad_request
+    end
+    
+    # 認証チェックを緩和（拡張機能からのリクエスト用）
+    if current_user.nil?
+      Rails.logger.warn("User not authenticated")
+      return render json: { error: "Authentication required", requires_login: true }, status: :unauthorized
+    end
+    
+    begin
+      exists = current_user.bookmarks.exists?(url: url)
+      Rails.logger.info("URL exists check result: #{exists}")
+      render json: { exists: exists }
+    rescue => e
+      Rails.logger.error("Error checking URL existence: #{e.message}")
+      Rails.logger.error(e.backtrace.join("\n"))
+      render json: { error: "An error occurred" }, status: :internal_server_error
+    end
+  end
+  
+  # 拡張機能からのブックマーク保存用アクション
+  def save_from_extension
+    # 認証チェック
+    unless current_user
+      return render json: { error: "Authentication required" }, status: :unauthorized
+    end
+    
+    @bookmark = current_user.bookmarks.build(bookmark_params)
+    
+    if @bookmark.save
+      render json: { 
+        status: 'success', 
+        message: 'ブックマークを保存しました', 
+        bookmark: @bookmark 
+      }, status: :created
+    else
+      render json: { 
+        status: 'error', 
+        message: @bookmark.errors.full_messages.join(', '), 
+        errors: @bookmark.errors.full_messages 
+      }, status: :unprocessable_entity
     end
   end
   

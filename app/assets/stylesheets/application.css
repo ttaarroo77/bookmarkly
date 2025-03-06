@@ -112,3 +112,40 @@ body {
   background-color: #f8d7da;
   border-color: #f5c6cb;
 }
+
+.hidden {
+  display: none;
+}
+
+.error-message {
+  color: #dc3545;
+  margin-top: 5px;
+  font-size: 0.9em;
+}
+
+.error-messages {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+#flash_messages .alert {
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+}
+
+#flash_messages .notice {
+  color: #155724;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+}

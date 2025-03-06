@@ -1,11 +1,18 @@
-<%= turbo_stream.prepend "bookmarks" do %>
-  <%= render @bookmark %>
-<% end %>
-
-<%= turbo_stream.update "new_bookmark" do %>
-  <%= render "form", bookmark: Bookmark.new %>
-<% end %>
-
-<%= turbo_stream.update "flash" do %>
-  <%= render "shared/flash" %>
+<% if @bookmark.persisted? %>
+  <%= turbo_stream.prepend "bookmarks_list", partial: "bookmarks/bookmark", locals: { bookmark: @bookmark } %>
+  <%= turbo_stream.replace "new_bookmark_form", partial: "bookmarks/form", locals: { bookmark: Bookmark.new } %>
+  <%= turbo_stream.replace "flash_messages", partial: "shared/flash", locals: { flash: { notice: "ブックマークを追加しました。" } } %>
+<% else %>
+  <%= turbo_stream.replace "new_bookmark_form" do %>
+    <%= render 'form', bookmark: @bookmark %>
+  <% end %>
+  
+  <%= turbo_stream.replace "flash_messages" do %>
+    <div id="flash_messages">
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <%= @bookmark.errors.full_messages.join(', ') %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    </div>
+  <% end %>
 <% end %> 

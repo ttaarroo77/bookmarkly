@@ -1,7 +1,14 @@
 <div class="container mt-3">
-  <% flash.each do |key, message| %>
-    <div class="alert alert-<%= key == 'notice' ? 'success' : 'danger' %> alert-dismissible fade show">
-      <%= message %>
+  <% if flash[:notice] %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <%= flash[:notice] %>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% end %>
+
+  <% if flash[:alert] %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <%= flash[:alert] %>
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
   <% end %>

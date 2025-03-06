@@ -1,7 +1,7 @@
-<%= form_with(model: @bookmark, local: true) do |f| %>
+<%= form_with(model: @bookmark, local: true, id: 'new_bookmark_form', data: { controller: 'bookmark-form' }) do |f| %>
   <% if @bookmark.errors.any? %>
-    <div class="alert alert-danger">
-      <ul class="mb-0">
+    <div id="error_explanation" class="error-messages">
+      <ul>
         <% @bookmark.errors.full_messages.each do |message| %>
           <li><%= message %></li>
         <% end %>
@@ -11,7 +11,8 @@
   
   <div class="mb-3">
     <%= f.label :url, "URL", class: "form-label" %>
-    <%= f.url_field :url, class: "form-control" %>
+    <%= f.url_field :url, class: "form-control", required: true, data: { bookmark_form_target: 'url' } %>
+    <div class="error-message hidden" data-bookmark-form-target="errorMessages"></div>
   </div>
   
   <div class="mb-3">
@@ -24,5 +25,5 @@
     <%= f.text_field :tags_text, class: "form-control" %>
   </div>
   
-  <%= f.submit yield(:button_text), class: "btn btn-dark w-100" %>
+  <%= f.submit '追加', data: { bookmark_form_target: 'submit' }, class: "btn btn-dark w-100" %>
 <% end %> 

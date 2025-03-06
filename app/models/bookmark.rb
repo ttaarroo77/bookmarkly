@@ -1,5 +1,7 @@
 class Bookmark < ApplicationRecord
   belongs_to :user
+  has_many :bookmark_tags, dependent: :destroy
+  has_many :tags, through: :bookmark_tags
   
   # バリデーション
   validates :url, presence: true, 
@@ -18,20 +20,22 @@ class Bookmark < ApplicationRecord
   
   # タグをカンマ区切りの文字列からセットするセッター
   def tags_text=(text)
-    self.tags = text.present? ? text.split(',').map(&:strip).reject(&:empty?).uniq : []
+    return if text.nil?
+    
+    # 既存のタグ関連をクリア
+    self.bookmark_tags.clear if persisted?
+    
+    # 新しいタグを設定
+    tag_names = text.split(',').map(&:strip).reject(&:empty?).uniq
+    
+    self.tags = tag_names.map do |name|
+      Tag.find_or_create_by(name: name)
+    end
   end
   
-  # タグを配列として取得
-  def tags
-    return [] if self[:tags].nil?
-    return self[:tags] if self[:tags].is_a?(Array)
-    # JSON文字列から配列に変換
-    JSON.parse(self[:tags])
-  end
-  
-  # タグで検索するスコープ
-  scope :with_tag, ->(tag) {
-    where("? = ANY(tags)", tag) if tag.present?
+  # タグで検索するスコープを修正
+  scope :with_tag, ->(tag_name) {
+    joins(:tags).where(tags: { name: tag_name }) if tag_name.present?
   }
   
   # キーワードで検索するスコープ
