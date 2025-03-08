@@ -59,13 +59,21 @@ class BookmarksController < ApplicationController
     respond_to do |format|
       if @bookmark.save
         @bookmark.generate_description
-        format.turbo_stream { redirect_to bookmarks_path, notice: 'ブックマークを追加しました。' }
+        format.turbo_stream { 
+          render turbo_stream: [
+            turbo_stream.prepend("bookmarks", @bookmark),
+            turbo_stream.update("flash", partial: "shared/flash", locals: { notice: 'ブックマークを追加しました。' })
+          ]
+        }
         format.html { redirect_to bookmarks_path, notice: 'ブックマークを追加しました。' }
       else
-        # エラーメッセージを設定
         error_message = @bookmark.errors.full_messages.join(', ')
-        flash.now[:alert] = error_message
-        format.turbo_stream { render :new, status: :unprocessable_entity }
+        format.turbo_stream {
+          render turbo_stream: [
+            turbo_stream.update("bookmark_form", partial: "form", locals: { bookmark: @bookmark }),
+            turbo_stream.update("flash", partial: "shared/flash", locals: { alert: error_message })
+          ]
+        }
         format.html { render :new, status: :unprocessable_entity }
       end
     end
