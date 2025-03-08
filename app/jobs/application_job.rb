@@ -1,6 +1,6 @@
 class ApplicationJob < ActiveJob::Base
   # キューアダプターをSidekiqに設定
-  self.queue_adapter = :sidekiq
+  # self.queue_adapter = :sidekiq
 
   # Automatically retry jobs that encountered a deadlock
   # retry_on ActiveRecord::Deadlocked

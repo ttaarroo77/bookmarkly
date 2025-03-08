@@ -24,9 +24,6 @@ module Bookmarkly
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
 
-    # Sidekiqの設定を環境ごとに分ける
-    # config.active_job.queue_adapter = :sidekiq  # この行をコメントアウト
-
     # Workerディレクトリを自動ロード対象に追加
     config.autoload_paths += %W(#{config.root}/app/workers)
   end
