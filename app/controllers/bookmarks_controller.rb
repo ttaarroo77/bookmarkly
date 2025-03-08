@@ -56,26 +56,26 @@ class BookmarksController < ApplicationController
   def create
     @bookmark = current_user.bookmarks.build(bookmark_params)
 
-    respond_to do |format|
-      if @bookmark.save
-        @bookmark.generate_description
-        format.turbo_stream { 
-          render turbo_stream: [
-            turbo_stream.prepend("bookmarks", @bookmark),
-            turbo_stream.update("flash", partial: "shared/flash", locals: { notice: 'ブックマークを追加しました。' })
-          ]
-        }
-        format.html { redirect_to bookmarks_path, notice: 'ブックマークを追加しました。' }
-      else
-        error_message = @bookmark.errors.full_messages.join(', ')
-        format.turbo_stream {
-          render turbo_stream: [
-            turbo_stream.update("bookmark_form", partial: "form", locals: { bookmark: @bookmark }),
-            turbo_stream.update("flash", partial: "shared/flash", locals: { alert: error_message })
-          ]
-        }
-        format.html { render :new, status: :unprocessable_entity }
+    if @bookmark.save
+      @bookmark.generate_description
+      redirect_to bookmarks_path, notice: 'ブックマークを追加しました。'
+    else
+      # エラーメッセージを設定
+      flash.now[:alert] = @bookmark.errors.full_messages.to_sentence
+      
+      # indexアクションで必要な変数を準備
+      @bookmarks = current_user.bookmarks.order(created_at: :desc)
+      @tags = current_user.bookmarks.flat_map(&:tags).uniq
+      @tag_counts = {}
+      current_user.bookmarks.each do |bookmark|
+        bookmark.tags.each do |tag|
+          @tag_counts[tag] ||= 0
+          @tag_counts[tag] += 1
+        end
       end
+      
+      # indexページにレンダリング（newではなく）
+      render :index, status: :unprocessable_entity
     end
   end
   

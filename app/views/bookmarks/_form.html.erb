@@ -1,15 +1,5 @@
 <div id="bookmark_form">
-  <%= form_with(model: bookmark, local: true) do |f| %>
-    <% if bookmark.errors.any? %>
-      <div class="alert alert-danger">
-        <ul class="mb-0">
-          <% bookmark.errors.full_messages.each do |message| %>
-            <li><%= message %></li>
-          <% end %>
-        </ul>
-      </div>
-    <% end %>
-    
+  <%= form_for(bookmark, html: { method: :post }) do |f| %>
     <div class="mb-3">
       <%= f.label :url, "URL", class: "form-label" %>
       <%= f.url_field :url, class: "form-control" %>

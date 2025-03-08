@@ -10,21 +10,38 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_26_203500) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_07_140311) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "bookmark_tags", force: :cascade do |t|
+    t.bigint "bookmark_id", null: false
+    t.bigint "tag_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["bookmark_id"], name: "index_bookmark_tags_on_bookmark_id"
+    t.index ["tag_id"], name: "index_bookmark_tags_on_tag_id"
+  end
 
   create_table "bookmarks", force: :cascade do |t|
     t.text "title"
     t.text "url"
     t.text "description"
-    t.text "tags"
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "ai_processing_status", default: 0
     t.datetime "ai_processed_at"
+    t.text "tags", default: [], array: true
+    t.index ["url", "user_id"], name: "index_bookmarks_on_url_and_user_id", unique: true
     t.index ["user_id"], name: "index_bookmarks_on_user_id"
+  end
+
+  create_table "tags", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_tags_on_name", unique: true
   end
 
   create_table "users", force: :cascade do |t|
@@ -40,5 +57,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_26_203500) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "bookmark_tags", "bookmarks"
+  add_foreign_key "bookmark_tags", "tags"
   add_foreign_key "bookmarks", "users"
 end

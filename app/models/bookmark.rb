@@ -13,20 +13,26 @@ class Bookmark < ApplicationRecord
   
   # タグをカンマ区切りの文字列として取得するゲッター
   def tags_text
-    tags&.join(', ') || ''
+    tags.join(', ') if tags.present?
   end
   
   # タグをカンマ区切りの文字列からセットするセッター
   def tags_text=(text)
-    self.tags = text.present? ? text.split(',').map(&:strip).reject(&:empty?).uniq : []
+    self[:tags] = text.present? ? text.split(',').map(&:strip).reject(&:empty?).uniq : []
   end
   
   # タグを配列として取得
   def tags
-    return [] if self[:tags].nil?
-    return self[:tags] if self[:tags].is_a?(Array)
-    # JSON文字列から配列に変換
-    JSON.parse(self[:tags])
+    if self[:tags].is_a?(String)
+      # JSON文字列から配列に変換
+      begin
+        JSON.parse(self[:tags])
+      rescue
+        []
+      end
+    else
+      self[:tags] || []
+    end
   end
   
   # タグで検索するスコープ
@@ -49,7 +55,19 @@ class Bookmark < ApplicationRecord
 
   # AI概要生成の開始
   def generate_description
-    ::GenerateBookmarkSummaryWorker.perform_async(id)
+    # 非同期処理でAIによる説明文生成を行う
+    GenerateBookmarkSummaryWorker.perform_async(id) if Rails.env.production?
+    
+    # 一時的に同期処理に変更
+    if Rails.env.development?
+      begin
+        # 開発環境では同期的に処理
+        self.update(description: "このブックマークの説明文はAIによって生成されます。", ai_processing_status: :completed)
+      rescue => e
+        Rails.logger.error "AI概要生成エラー: #{e.message}"
+        self.update(ai_processing_status: :failed)
+      end
+    end
   end
 
   private

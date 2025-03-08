@@ -8,8 +8,7 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
+    <%= stylesheet_link_tag "application" %>
   </head>
 
   <body class="bg-light">
@@ -21,5 +20,14 @@
 
     <!-- Bootstrap JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+      // aria-hidden属性を削除
+      document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('[aria-hidden="true"]').forEach(el => {
+          el.removeAttribute('aria-hidden');
+        });
+      });
+    </script>
   </body>
 </html>
