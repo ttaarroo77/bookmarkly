@@ -8,40 +8,7 @@
   <div class="row">
     <!-- 左側：ブックマーク一覧 -->
     <div class="col-lg-7 mb-4">
-      <% if @bookmarks.present? %>
-        <div id="bookmarks">
-          <% @bookmarks.each do |bookmark| %>
-            <div class="card mb-3">
-              <div class="card-body">
-                <h2 class="h5 mb-1"><%= bookmark.title %></h2>
-                <a href="<%= bookmark.url %>" class="text-truncate d-block mb-2 small text-secondary" target="_blank">
-                  <%= bookmark.url %>
-                  <%= external_link_icon %>
-                </a>
-                
-                <% if bookmark.tags.present? %>
-                  <div class="mb-2">
-                    <% bookmark.tags.each do |tag| %>
-                      <%= link_to tag, bookmarks_path(tag: tag), class: "badge bg-light text-dark text-decoration-none me-1" %>
-                    <% end %>
-                  </div>
-                <% end %>
-                
-                <div class="d-flex justify-content-end">
-                  <%= link_to "編集", edit_bookmark_path(bookmark), class: "btn btn-sm btn-outline-secondary me-2" %>
-                  <%= link_to "削除", bookmark_path(bookmark), 
-                      data: { turbo_method: :delete, turbo_confirm: "本当に削除しますか？" },
-                      class: "btn btn-sm btn-outline-danger" %>
-                </div>
-              </div>
-            </div>
-          <% end %>
-        </div>
-      <% else %>
-        <div class="alert alert-info">
-          ブックマークがありません。新しいブックマークを追加してください。
-        </div>
-      <% end %>
+      <%= render 'list', bookmarks: @bookmarks %>
     </div>
 
     <!-- 右側：新規追加フォーム -->
