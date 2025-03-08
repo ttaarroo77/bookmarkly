@@ -56,7 +56,20 @@ class Bookmark < ApplicationRecord
   # AI概要生成の開始
   def generate_description
     # 非同期処理でAIによる説明文生成を行う
-    GenerateBookmarkSummaryWorker.perform_async(id)
+    begin
+      GenerateBookmarkSummaryWorker.perform_async(id)
+    rescue => e
+      # Redisに接続できない場合などのエラーを処理
+      Rails.logger.error "非同期処理エラー: #{e.message}"
+      
+      # 同期的に処理
+      begin
+        self.update(description: "このブックマークの説明文はAIによって生成されます。", ai_processing_status: :completed)
+      rescue => e
+        Rails.logger.error "AI概要生成エラー: #{e.message}"
+        self.update(ai_processing_status: :failed) if self.persisted?
+      end
+    end
   end
 
   private
