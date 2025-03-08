@@ -26,5 +26,8 @@ module Bookmarkly
 
     # Workerディレクトリを自動ロード対象に追加
     config.autoload_paths += %W(#{config.root}/app/workers)
+
+    # キューアダプターをSidekiqに設定
+    config.active_job.queue_adapter = :sidekiq
   end
 end

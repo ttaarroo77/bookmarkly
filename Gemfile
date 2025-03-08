@@ -41,6 +41,7 @@ gem 'ruby-openai'
 
 # 非同期処理
 gem 'sidekiq'
+gem 'redis', '~> 5.0'  # Sidekiqに必要なRedis
 
 # HTTP通信
 gem 'faraday'
