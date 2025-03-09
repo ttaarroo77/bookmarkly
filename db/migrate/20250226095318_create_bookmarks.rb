@@ -1,6 +1,6 @@
-class CreateBookmarks < ActiveRecord::Migration[8.0]
+class CreatePrompts < ActiveRecord::Migration[8.0]
   def change
-    create_table :bookmarks do |t|
+    create_table :prompts do |t|
       t.text :title
       t.text :url
       t.text :description

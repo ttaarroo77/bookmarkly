@@ -1,25 +1,25 @@
-class GenerateBookmarkSummaryWorker
+class GeneratePromptSummaryWorker
   include Sidekiq::Worker
   sidekiq_options retry: 3
 
-  def perform(bookmark_id)
-    bookmark = Bookmark.find_by(id: bookmark_id)
-    return unless bookmark
+  def perform(prompt_id)
+    prompt = Prompt.find_by(id: prompt_id)
+    return unless prompt
 
     begin
-      bookmark.update(ai_processing_status: :processing)
+      prompt.update(ai_processing_status: :processing)
       
       # ここにAI概要生成のコードを書く
       # 例: OpenAIのAPIを呼び出すなど
       
-      bookmark.update(
-        description: "このブックマークの説明文はAIによって生成されます。",
+      prompt.update(
+        description: "このプロンプトの説明文はAIによって生成されます。",
         ai_processing_status: :completed,
         ai_processed_at: Time.current
       )
     rescue => e
       Rails.logger.error "AI概要生成エラー: #{e.message}"
-      bookmark.update(ai_processing_status: :failed)
+      prompt.update(ai_processing_status: :failed)
     end
   end
 

@@ -1,7 +1,7 @@
-class EnsureTagsColumnForBookmarks < ActiveRecord::Migration[8.0]
+class EnsureTagsColumnForPrompts < ActiveRecord::Migration[8.0]
   def change
-    unless column_exists?(:bookmarks, :tags)
-      add_column :bookmarks, :tags, :text, default: '[]'
+    unless column_exists?(:prompts, :tags)
+      add_column :prompts, :tags, :text, default: '[]'
     end
   end
 end 

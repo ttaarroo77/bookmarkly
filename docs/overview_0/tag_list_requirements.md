@@ -3,7 +3,7 @@ name: "docs/overview_0/tag_list_requirements.md"
 title: "タグ一覧機能 追加要件定義書 (Tag List Requirements)"
 description: "Bookmark app - タグ一覧機能の追加要件定義"
 ---
-以下は、**Bookmarkly**プロジェクトにおける**docs/overview_0/tag_list_requirements.md** の内容です。こちらは、アプリケーションのタグ一覧機能の追加要件定義を行います。
+以下は、**Prompty**プロジェクトにおける**docs/overview_0/tag_list_requirements.md** の内容です。こちらは、アプリケーションのタグ一覧機能の追加要件定義を行います。
 
 
 参考URL：
@@ -16,7 +16,7 @@ description: "Bookmark app - タグ一覧機能の追加要件定義"
 
 ## 1. 概要
 
-ブックマーク管理アプリケーション「Bookmarkly」のタグ一覧機能を拡張し、ユーザーにとってより使いやすく、情報価値の高い機能にする。
+ブックマーク管理アプリケーション「Prompty」のタグ一覧機能を拡張し、ユーザーにとってより使いやすく、情報価値の高い機能にする。
 
 ## 2. 目的
 
