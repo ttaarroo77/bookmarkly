@@ -37,7 +37,10 @@ class Bookmark < ApplicationRecord
   
   # タグで検索するスコープ
   scope :with_tag, ->(tag) {
-    where("? = ANY(tags)", tag) if tag.present?
+    if tag.present?
+      # tagsがJSON文字列として保存されている場合の対応
+      where("tags::text LIKE ?", "%#{tag}%")
+    end
   }
   
   # キーワードで検索するスコープ
