@@ -38,8 +38,8 @@ class Bookmark < ApplicationRecord
   # タグで検索するスコープ
   scope :with_tag, ->(tag) {
     if tag.present?
-      # tagsがJSON文字列として保存されている場合の対応
-      where("tags::text LIKE ?", "%#{tag}%")
+      # どのような形式でも対応できるように複数の条件を試す
+      where("tags::text LIKE ? OR tags LIKE ?", "%#{tag}%", "%#{tag}%")
     end
   }
   
