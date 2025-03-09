@@ -6,10 +6,14 @@ class BookmarksController < ApplicationController
   def index
     @bookmarks = current_user.bookmarks.order(created_at: :desc)
     
-    # タグによるフィルタリング
+    # タグでフィルタリング
     if params[:tag].present?
-      @bookmarks = @bookmarks.with_tag(params[:tag])
+      # ANY演算子を使わずにLIKE検索を使用
+      @bookmarks = @bookmarks.where("tags::text LIKE ?", "%#{params[:tag]}%")
     end
+    
+    # 検索キーワードでフィルタリング
+    @bookmarks = @bookmarks.search(params[:search]) if params[:search].present?
     
     # タグの一覧を取得（タグクラウド用）
     @tags = current_user.bookmarks.flat_map(&:tags).uniq
@@ -30,9 +34,9 @@ class BookmarksController < ApplicationController
     when 'count_asc'
       @tags = @tags.sort_by { |tag| [@tag_counts[tag], tag] }
     when 'created_desc'
-      @tags = @tags.sort_by { |tag| [-current_user.bookmarks.where("? = ANY(tags)", tag).maximum(:created_at).to_i, tag] }
+      @tags = @tags.sort_by { |tag| [-current_user.bookmarks.where("tags::text LIKE ?", "%#{tag}%").maximum(:created_at).to_i, tag] }
     when 'created_asc'
-      @tags = @tags.sort_by { |tag| [current_user.bookmarks.where("? = ANY(tags)", tag).minimum(:created_at).to_i, tag] }
+      @tags = @tags.sort_by { |tag| [current_user.bookmarks.where("tags::text LIKE ?", "%#{tag}%").minimum(:created_at).to_i, tag] }
     end
     
     # 新規ブックマーク用のインスタンス
