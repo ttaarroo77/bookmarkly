@@ -1,7 +1,7 @@
 <div class="container py-5">
   <div class="row justify-content-center">
     <div class="col-md-8">
-      <div class="card mb-4">
+      <div class="card">
         <div class="card-body">
           <h1 class="h3 mb-4">マイプロフィール</h1>
           
@@ -15,21 +15,8 @@
           
           <div class="d-flex">
             <%= link_to "プロフィール編集", mypage_edit_path, class: "btn btn-dark me-2" %>
-            <%= link_to "ブックマーク一覧", bookmarks_path, class: "btn btn-outline-secondary" %>
+            <%= link_to "ブックマーク一覧", prompts_path, class: "btn btn-outline-secondary" %>
           </div>
-        </div>
-      </div>
-      
-      <div class="card">
-        <div class="card-body">
-          <h2 class="h4 mb-3">ブックマーク統計</h2>
-          
-          <p>総ブックマーク数: <%= @user.bookmarks.count %></p>
-          
-          <% if @user.bookmarks.any? %>
-            <p>利用中のタグ: <%= @user.bookmarks.flat_map(&:tags).uniq.count %></p>
-            <p>最近のブックマーク: <%= @user.bookmarks.order(created_at: :desc).first.title %></p>
-          <% end %>
         </div>
       </div>
     </div>

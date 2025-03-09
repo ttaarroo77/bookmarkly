@@ -1,6 +1,6 @@
-# Bookmarkly プロジェクト 手順書
+# Prompty プロジェクト 手順書
 
-この手順書は、Bookmarks アプリのバックエンド（Rails）およびフロントエンド（Rails の View で fe_v0 を参考）実装に必要な全体工程を、チェックリスト形式でまとめたものです。
+この手順書は、Prompty アプリのバックエンド（Rails）およびフロントエンド（Rails の View で fe_v0 を参考）実装に必要な全体工程を、チェックリスト形式でまとめたものです。
 
 注意：
  - このマニュアルは、もうすでに終わっている工程にチェックがついていない可能性があります。
@@ -13,8 +13,8 @@
 
 ### 1.1. 開発環境のセットアップ
 - [ ] Ruby, Rails, Node.js, Yarn, PostgreSQL, Bundler を各自インストールする
-- [ ] `rails new bookmarkly --database=postgresql` で新規 Rails プロジェクトを作成する
-- [ ] プロジェクトフォルダに移動 (`cd bookmarkly`)
+- [ ] `rails new prompty --database=postgresql` で新規 Rails プロジェクトを作成する
+- [ ] プロジェクトフォルダに移動 (`cd prompty`)
 - [ ] 必要な Gem（`devise`, `rspec-rails`, `pg`, `bootstrap` など）を `Gemfile` に追加する
 - [ ] `bundle install` を実行する
 - [ ] データベース設定を確認し、`rails db:create` でデータベースを作成する
@@ -53,15 +53,15 @@
 - [x] `config/routes.rb` にユーザー関連のルート（例：`resources :users` など）を追加する
 
 ### 2.4. ブックマーク管理機能の実装
-- [ ] `Bookmark` モデルの作成
+- [ ] `Prompt` モデルの作成
   ```bash
-  rails generate model Bookmark title:string url:string user:references
+  rails generate model Prompt title:string url:string user:references
   rails db:migrate
   ```
 
-- [ ] `BookmarksController` の実装
+- [ ] `PromptsController` の実装
   ```ruby
-  class BookmarksController < ApplicationController
+  class PromptsController < ApplicationController
     before_action :authenticate_user!
     # ... CRUD アクション
   end
@@ -70,18 +70,18 @@
 - [ ] ブックマーク関連のビューファイルを作成
   - `index.html.erb`（一覧表示）
   - `_form.html.erb`（新規作成・編集フォーム）
-  - `_bookmark.html.erb`（個別表示用パーシャル）
+  - `_prompt.html.erb`（個別表示用パーシャル）
 
 - [ ] ルーティングの設定
   ```ruby
   Rails.application.routes.draw do
-    resources :bookmarks
+    resources :prompts
   end
   ```
 
 - [ ] タグ機能の実装
   - `Tag` モデルの作成
-  - `BookmarkTag` 中間テーブルの作成
+  - `PromptTag` 中間テーブルの作成
   - モデルの関連付け
   - タグ入力用のJavaScript実装
   - タグ検索機能の実装
@@ -92,24 +92,24 @@
   rails generate model Tag name:string
   ```
 
-- [x] `BookmarkTag` 中間テーブルの作成
+- [x] `PromptTag` 中間テーブルの作成
   ```bash
-  rails generate model BookmarkTag bookmark:references tag:references
+  rails generate model PromptTag prompt:references tag:references
   rails db:migrate
   ```
 
 - [x] モデルの関連付け
   ```ruby
-  # app/models/bookmark.rb
-  class Bookmark < ApplicationRecord
-    has_many :bookmark_tags, dependent: :destroy
-    has_many :tags, through: :bookmark_tags
+  # app/models/prompt.rb
+  class Prompt < ApplicationRecord
+    has_many :prompt_tags, dependent: :destroy
+    has_many :tags, through: :prompt_tags
   end
 
   # app/models/tag.rb
   class Tag < ApplicationRecord
-    has_many :bookmark_tags, dependent: :destroy
-    has_many :bookmarks, through: :bookmark_tags
+    has_many :prompt_tags, dependent: :destroy
+    has_many :prompts, through: :prompt_tags
   end
   ```
 
@@ -170,10 +170,10 @@
 - [x] Bootstrapを使用してfe_v0のデザインを再現済み
 
 ### 3.3. 各ページのビュー実装
-- [x] `app/views/bookmarks/index.html.erb` （一覧画面）を作成済み
-- [x] `app/views/bookmarks/show.html.erb` （詳細画面）を作成済み
-- [x] `app/views/bookmarks/new.html.erb` （新規作成フォーム）を作成済み
-- [x] `app/views/bookmarks/edit.html.erb` （編集フォーム）を作成済み
+- [x] `app/views/prompts/index.html.erb` （一覧画面）を作成済み
+- [x] `app/views/prompts/show.html.erb` （詳細画面）を作成済み
+- [x] `app/views/prompts/new.html.erb` （新規作成フォーム）を作成済み
+- [x] `app/views/prompts/edit.html.erb` （編集フォーム）を作成済み
 - [x] 全体の微調整（デザインはfe_v0とほぼ一致していることを確認済み）
 
 ### 3.4. スタイルと動的機能の実装
@@ -182,7 +182,7 @@
 - [x] `app/javascript/controllers/search_controller.js` を作成し、リアルタイム検索機能を実装
 
 ### 3.5. API 連携 (必要な場合)
-- [x] `BookmarksController` に JSON および Turbo Stream 形式のレスポンスを追加
+- [x] `PromptsController` に JSON および Turbo Stream 形式のレスポンスを追加
 - [x] 非同期検索とタグ入力の動的処理を実装
 - [x] API動作確認用のテストスクリプト（test_api.sh）を作成・実行
 

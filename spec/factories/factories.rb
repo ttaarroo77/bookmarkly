@@ -6,7 +6,7 @@ FactoryBot.define do
     password_confirmation { "password123" }
   end
   
-  factory :bookmark do
+  factory :prompt do
     title { Faker::Lorem.sentence }
     url { Faker::Internet.url }
     tags { [Faker::Lorem.word, Faker::Lorem.word] }

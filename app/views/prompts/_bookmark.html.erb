@@ -1,0 +1,46 @@
+<div class="card mb-3">
+  <div class="card-body">
+    <h2 class="h5 mb-1"><%= prompt.title %></h2>
+    <a href="<%= prompt.url %>" class="text-truncate d-block mb-2 small text-secondary" target="_blank">
+      <%= prompt.url %>
+      <%= external_link_icon %>
+    </a>
+    
+    <% if prompt.description.present? %>
+      <div class="mb-3">
+        <p class="mb-2"><%= prompt.description %></p>
+        <small class="text-muted">
+          AI生成: <%= l prompt.ai_processed_at, format: :short if prompt.ai_processed_at %>
+        </small>
+      </div>
+    <% elsif prompt.processing? %>
+      <div class="mb-3">
+        <div class="d-flex align-items-center text-muted">
+          <div class="spinner-border spinner-border-sm me-2"></div>
+          AI概要を生成中...
+        </div>
+      </div>
+    <% elsif prompt.failed? %>
+      <div class="mb-3">
+        <div class="text-danger">
+          <small>AI概要の生成に失敗しました</small>
+        </div>
+      </div>
+    <% end %>
+    
+      <% if prompt.tags.present? %>
+      <div class="mb-2">
+        <% prompt.tags.each do |tag| %>
+          <%= link_to tag, prompts_path(tag: tag), class: "badge bg-light text-dark text-decoration-none me-1" %>
+        <% end %>
+      </div>
+    <% end %>
+    
+    <div class="d-flex justify-content-end">
+      <%= link_to "編集", edit_prompt_path(prompt), class: "btn btn-sm btn-outline-secondary me-2" %>
+      <%= link_to "削除", prompt_path(prompt), 
+          data: { turbo_method: :delete, turbo_confirm: "本当に削除しますか？" },
+          class: "btn btn-sm btn-outline-danger" %>
+    </div>
+  </div>
+</div> 

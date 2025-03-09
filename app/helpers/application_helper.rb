@@ -1,7 +1,7 @@
 module ApplicationHelper
   # タイトルを生成する
   def full_title(page_title = '')
-    base_title = "Bookmarkly"
+    base_title = "Prompty"
     if page_title.empty?
       base_title
     else
@@ -19,6 +19,6 @@ module ApplicationHelper
   
   # タグを表示用に整形する
   def render_tag(tag)
-    link_to tag, bookmarks_by_tag_path(tag), class: "badge bg-light text-dark text-decoration-none me-1"
+    link_to tag, prompts_by_tag_path(tag), class: "badge bg-light text-dark text-decoration-none me-1"
   end
 end
