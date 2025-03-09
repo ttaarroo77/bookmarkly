@@ -15,10 +15,10 @@ class BookmarksController < ApplicationController
     # 検索キーワードでフィルタリング
     @bookmarks = @bookmarks.search(params[:search]) if params[:search].present?
     
-    # タグの一覧を取得（タグクラウド用）
+    # タグの一覧を取得
     @tags = current_user.bookmarks.flat_map(&:tags).uniq
     
-    # タグの使用回数を集計
+    # タグの出現回数をカウント
     @tag_counts = {}
     current_user.bookmarks.each do |bookmark|
       bookmark.tags.each do |tag|
@@ -34,8 +34,10 @@ class BookmarksController < ApplicationController
     when 'count_asc'
       @tags = @tags.sort_by { |tag| [@tag_counts[tag], tag] }
     when 'created_desc'
+      # ANY演算子を使わずにLIKE検索を使用
       @tags = @tags.sort_by { |tag| [-current_user.bookmarks.where("tags::text LIKE ?", "%#{tag}%").maximum(:created_at).to_i, tag] }
     when 'created_asc'
+      # ANY演算子を使わずにLIKE検索を使用
       @tags = @tags.sort_by { |tag| [current_user.bookmarks.where("tags::text LIKE ?", "%#{tag}%").minimum(:created_at).to_i, tag] }
     end
     
