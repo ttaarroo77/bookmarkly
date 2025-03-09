@@ -32,3 +32,4 @@
 # Ignore precompiled assets
 /public/assets
 backup*.sql
+_site/
