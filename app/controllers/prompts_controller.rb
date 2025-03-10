@@ -24,15 +24,8 @@ class PromptsController < ApplicationController
     end
     
     # タグのソート（新規登録順のソートを削除）
-    case params[:sort]
-    when 'count_desc'
-      @tags = @tags.sort_by { |tag| [-@tag_counts[tag.name], tag.name] }
-    when 'count_asc'
-      @tags = @tags.sort_by { |tag| [@tag_counts[tag.name], tag.name] }
-    else
-      # デフォルトは使用頻度の多い順
-      @tags = @tags.sort_by { |tag| [-@tag_counts[tag.name], tag.name] }
-    end
+    # デフォルトは使用頻度の多い順のみにする
+    @tags = @tags.sort_by { |tag| [-@tag_counts[tag.name], tag.name] }
     
     # 新規プロンプト用のインスタンス
     @prompt = Prompt.new

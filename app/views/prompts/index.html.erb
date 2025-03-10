@@ -24,16 +24,6 @@
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h3 class="h5 mb-0">タグ一覧</h3>
-            <%= form_with(url: prompts_path, method: :get, class: "d-flex") do |f| %>
-              <%= f.select :sort, 
-                [
-                  ['登録数が多い順', 'count_desc'],
-                  ['登録数が少ない順', 'count_asc']
-                ],
-                { selected: params[:sort], include_blank: '並び替え' },
-                { class: 'form-select form-select-sm w-auto', onchange: 'this.form.submit()' }
-              %>
-            <% end %>
           </div>
           
           <div class="tag-list">
