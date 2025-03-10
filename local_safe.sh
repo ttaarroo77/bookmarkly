@@ -1,3 +1,5 @@
+# ./local_safe.sh
+
 # chmod +x local_safe.sh
 
 
@@ -35,7 +37,9 @@ git push origin $CURRENT_BRANCH
 
 # Heroku にデプロイ
 echo "Heroku にデプロイしています..."
-git push heroku $CURRENT_BRANCH:main
+git push heroku $CURRENT_BRANCH
+# git push heroku $CURRENT_BRANCH:main
+
 
 # 完了メッセージ
 echo "✅ $SCRIPT_NAME が正常に完了しました！"
