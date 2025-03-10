@@ -4,7 +4,7 @@ class PromptsController < ApplicationController
   
   # プロンプト一覧
   def index
-    # 常に新しい順（created_at: :desc）で表示するように固定
+    # 常に新しい順（created_at: :desc）で表示するように固定し、ソートパラメータを無視
     @prompts = current_user.prompts.order(created_at: :desc)
     
     # タグでフィルタリング

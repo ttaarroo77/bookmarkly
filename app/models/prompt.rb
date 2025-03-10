@@ -55,20 +55,16 @@ class Prompt < ApplicationRecord
 
   # AI概要生成の開始
   def generate_description
-    # 非同期処理でAIによる説明文生成を行う
+    # 同期的に処理
     begin
-      GeneratePromptSummaryWorker.perform_async(id)
+      self.update(
+        description: "このプロンプトの説明文はAIによって生成されます。", 
+        ai_processing_status: :completed,
+        ai_processed_at: Time.current
+      )
     rescue => e
-      # Redisに接続できない場合などのエラーを処理
-      Rails.logger.error "非同期処理エラー: #{e.message}"
-      
-      # 同期的に処理
-      begin
-        self.update(description: "このプロンプトの説明文はAIによって生成されます。", ai_processing_status: :completed)
-      rescue => e
-        Rails.logger.error "AI概要生成エラー: #{e.message}"
-        self.update(ai_processing_status: :failed) if self.persisted?
-      end
+      Rails.logger.error "AI概要生成エラー: #{e.message}"
+      self.update(ai_processing_status: :failed) if self.persisted?
     end
   end
 
