@@ -18,15 +18,18 @@ class Prompt < ApplicationRecord
   
   # タグをカンマ区切りの文字列からセットするセッター
   def tags_text=(text)
-    return if text.blank? || user.nil?
+    return if text.blank?
     
     # 既存のタグ関連をクリア
     self.tags.clear
     
     # 新しいタグを追加
     text.split(',').map(&:strip).reject(&:empty?).uniq.each do |tag_name|
-      tag = user.tags.find_or_create_by(name: tag_name.downcase)
-      self.tags << tag
+      # ユーザーが存在する場合のみタグを作成
+      if self.user.present?
+        tag = self.user.tags.find_or_initialize_by(name: tag_name.downcase)
+        self.tags << tag unless self.tags.include?(tag)
+      end
     end
   end
   
