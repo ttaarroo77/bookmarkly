@@ -1,0 +1,30 @@
+<div id="prompt_form">
+  <%= form_for(prompt, html: { method: :post }) do |f| %>
+    <% if prompt.errors.any? %>
+      <div class="alert alert-danger mb-3">
+        <ul class="mb-0">
+          <% prompt.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="mb-3">
+      <%= f.label :url, "URL", class: "form-label" %>
+      <%= f.url_field :url, class: "form-control" %>
+    </div>
+    
+    <div class="mb-3">
+      <%= f.label :title, "タイトル", class: "form-label" %>
+      <%= f.text_field :title, class: "form-control" %>
+    </div>
+    
+    <div class="mb-4">
+      <%= f.label :tags_text, "タグ（カンマ区切り）", class: "form-label" %>
+      <%= f.text_field :tags_text, class: "form-control", value: prompt.tags_text || '' %>
+    </div>
+    
+    <%= f.submit "追加", class: "btn btn-dark w-100" %>
+  <% end %>
+</div> 

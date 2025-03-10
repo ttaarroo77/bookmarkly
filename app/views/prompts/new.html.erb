@@ -1,0 +1,17 @@
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-body">
+          <h1 class="h3 mb-4">新規ブックマーク</h1>
+          
+          <%= render 'form', prompt: @prompt %>
+          
+          <div class="mt-3">
+            <%= link_to "戻る", prompts_path, class: "btn btn-outline-secondary" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,7 @@
+<%= turbo_stream.replace "new_prompt" do %>
+  <%= render "form", prompt: @prompt %>
+<% end %>
+
+<%= turbo_stream.update "flash" do %>
+  <%= render "shared/flash" %>
+<% end %> 
