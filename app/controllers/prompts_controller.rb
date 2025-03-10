@@ -4,6 +4,7 @@ class PromptsController < ApplicationController
   
   # プロンプト一覧
   def index
+    # 常に新しい順（created_at: :desc）で表示するように固定
     @prompts = current_user.prompts.order(created_at: :desc)
     
     # タグでフィルタリング
@@ -23,8 +24,7 @@ class PromptsController < ApplicationController
       @tag_counts[tag.name] = tag.prompts.where(user_id: current_user.id).count
     end
     
-    # タグのソート（新規登録順のソートを削除）
-    # デフォルトは使用頻度の多い順のみにする
+    # タグのソート（使用頻度の多い順）
     @tags = @tags.sort_by { |tag| [-@tag_counts[tag.name], tag.name] }
     
     # 新規プロンプト用のインスタンス
