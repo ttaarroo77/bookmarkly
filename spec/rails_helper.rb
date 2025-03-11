@@ -32,27 +32,13 @@ RSpec.configure do |config|
   # Factory Bot設定
   config.include FactoryBot::Syntax::Methods
   
-  # Database Cleaner設定
-  config.before(:suite) do
-    DatabaseCleaner.strategy = :transaction
-    DatabaseCleaner.clean_with(:truncation)
-  end
-
-  config.around(:each) do |example|
-    DatabaseCleaner.cleaning do
-      example.run
-    end
-  end
-  
   # プロンプト管理システム用のヘルパーメソッド
   config.include PromptsTestHelper, type: :system if defined?(PromptsTestHelper)
   
-  # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
-  config.fixture_path = "#{::Rails.root}/spec/fixtures"
+  # fixture_pathの設定を配列形式に更新
+  config.fixture_paths = ["#{::Rails.root}/spec/fixtures"]  # 単数形から複数形に変更
 
-  # If you're not using ActiveRecord, or you'd prefer not to run each of your
-  # examples within a transaction, remove the following line or assign false
-  # instead of true.
+  # トランザクション設定を有効化
   config.use_transactional_fixtures = true
 
   # You can uncomment this line to turn off ActiveRecord support entirely.

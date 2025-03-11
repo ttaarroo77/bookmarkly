@@ -1,0 +1,15 @@
+<div>
+  <% tags.each do |tag| %>
+    <span class="tag">
+      <%= tag.name %>
+      <%= link_to "×", tag_path(tag), 
+          data: { 
+            turbo: false,
+            tag_name: tag.name,
+            tag_prompt_count: tag.prompts.count
+          },
+          class: "delete-tag",
+          onclick: "return confirmTagDelete(this);" %>
+    </span>
+  <% end %>
+</div> 

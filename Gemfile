@@ -58,6 +58,13 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # テスト用のgem
+  gem 'rspec-rails', '~> 7.1'
+  gem 'factory_bot_rails'
+  gem 'faker'
+  gem 'shoulda-matchers'
+  # gem 'database_cleaner-active_record'  # コメントアウトまたは削除
 end
 
 group :development do
@@ -70,5 +77,3 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
-
-gem "rspec-rails", "~> 7.1", :groups => [:development, :test]
