@@ -94,24 +94,33 @@ class PromptsController < ApplicationController
   
   # プロンプト更新
   def update
-    respond_to do |format|
-      if @prompt.update(prompt_params)
-        format.html { redirect_to prompts_path, notice: 'プロンプトが正常に更新されました。' }
-        format.json { render :index, status: :ok, location: prompts_path }
-      else
-        format.html { render :edit }
-        format.json { render json: @prompt.errors, status: :unprocessable_entity }
-      end
+    @prompt = current_user.prompts.find(params[:id])
+    
+    if @prompt.update(prompt_params)
+      # タグの更新後に未使用タグを削除
+      Tag.cleanup_unused_tags
+      
+      flash[:success] = "プロンプトを更新しました"
+      redirect_to prompts_path
+    else
+      render :edit, status: :unprocessable_entity
     end
   end
   
   # プロンプト削除
   def destroy
-    @prompt.destroy
-    respond_to do |format|
-      format.html { redirect_to prompts_path, notice: 'プロンプトが正常に削除されました。' }
-      format.json { head :no_content }
+    @prompt = current_user.prompts.find(params[:id])
+    
+    if @prompt.destroy
+      # プロンプト削除後に未使用タグを削除
+      Tag.cleanup_unused_tags
+      
+      flash[:success] = "プロンプトを削除しました"
+    else
+      flash[:error] = "プロンプトの削除に失敗しました"
     end
+    
+    redirect_to prompts_path
   end
   
   private

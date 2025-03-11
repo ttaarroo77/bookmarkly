@@ -1,7 +1,7 @@
 <div id="prompt_form">
-  <%= form_for(prompt, html: { method: :post }) do |f| %>
+  <%= form_with(model: prompt, local: true) do |f| %>
     <% if prompt.errors.any? %>
-      <div class="alert alert-danger mb-3">
+      <div class="alert alert-danger">
         <ul class="mb-0">
           <% prompt.errors.full_messages.each do |message| %>
             <li><%= message %></li>
@@ -20,11 +20,18 @@
       <%= f.text_field :title, class: "form-control" %>
     </div>
     
-    <div class="mb-4">
-      <%= f.label :tags_text, "タグ（カンマ区切り）", class: "form-label" %>
-      <%= f.text_field :tags_text, class: "form-control", value: prompt.tags_text || '' %>
+    <div class="mb-3">
+      <%= f.label :description, "説明", class: "form-label" %>
+      <%= f.text_area :description, class: "form-control", rows: 3 %>
     </div>
     
-    <%= f.submit "追加", class: "btn btn-dark w-100" %>
+    <div class="mb-3">
+      <%= f.label :tags_text, "タグ（カンマ区切り）", class: "form-label" %>
+      <%= f.text_field :tags_text, class: "form-control", value: prompt.tags_text %>
+    </div>
+    
+    <div class="text-end">
+      <%= f.submit prompt.new_record? ? "追加" : "更新", class: "btn", style: "background-color: #212529; color: white;" %>
+    </div>
   <% end %>
 </div> 

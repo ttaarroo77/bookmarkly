@@ -33,4 +33,19 @@ class Tag < ApplicationRecord
       order(name: :asc)
     end
   }
+
+  # タグが使用されているプロンプト数を確認し、未使用タグを削除するクラスメソッド
+  def self.cleanup_unused_tags
+    Tag.left_joins(:prompts).group(:id).having('COUNT(prompts.id) = 0').destroy_all
+  end
+  
+  # プロンプトとタグの関連付けが変更された後に実行
+  after_commit :check_for_cleanup, on: [:update, :destroy]
+  
+  private
+  
+  def check_for_cleanup
+    # タグに関連するプロンプトがなくなった場合、削除
+    self.destroy if self.persisted? && self.prompts.count == 0
+  end
 end 
