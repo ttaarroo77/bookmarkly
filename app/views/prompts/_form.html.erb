@@ -30,8 +30,9 @@
       <%= f.text_field :tags_text, class: "form-control", value: prompt.tags_text %>
     </div>
     
-    <div class="text-end">
-      <%= f.submit prompt.new_record? ? "追加" : "更新", class: "btn", style: "background-color: #212529; color: white;" %>
+    <div class="actions d-flex justify-content-end gap-2">
+      <%= link_to '戻る', prompts_path, class: 'btn btn-light' %>
+      <%= f.submit '更新', class: 'btn', style: 'background-color: #212529; color: white;' %>
     </div>
   <% end %>
 </div> 

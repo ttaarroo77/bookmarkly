@@ -1,0 +1,26 @@
+.tag-suggestions {
+  border: 1px solid #e9ecef;
+  border-radius: 0.25rem;
+  padding: 0.75rem;
+  background-color: #f8f9fa;
+}
+
+.tag-suggestions-list {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.tag-suggestion {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  padding: 0.4rem 0.6rem;
+}
+
+.tag-suggestion:hover {
+  background-color: #e9ecef !important;
+}
+
+.tag-suggestion i {
+  font-size: 0.8rem;
+}

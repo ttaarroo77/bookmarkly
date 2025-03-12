@@ -1,0 +1,17 @@
+<% if tag_suggestions.present? %>
+  <div class="tag-suggestions mt-3" data-controller="tag-suggestion">
+    <h6 class="text-muted">タグ候補:</h6>
+    <div class="tag-suggestions-list">
+      <% tag_suggestions.each do |tag| %>
+        <span class="badge bg-light text-dark me-2 mb-2 tag-suggestion" 
+              data-tag="<%= tag %>"
+              data-action="click->tag-suggestion#addTag"
+              data-tag-suggestion-target="suggestion">
+          <%= tag %>
+          <i class="bi bi-plus-circle-fill ms-1"></i>
+        </span>
+      <% end %>
+    </div>
+    <small class="text-muted">※ クリックするとタグが追加されます</small>
+  </div>
+<% end %>
