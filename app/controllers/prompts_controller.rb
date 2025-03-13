@@ -1,6 +1,6 @@
 class PromptsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_prompt, only: [:show, :edit, :update, :destroy, :apply_tag_suggestion]
+  before_action :set_prompt, only: [:show, :edit, :update, :destroy, :apply_tag_suggestion, :apply_tags, :rate_tag_suggestion]
   
   # プロンプト一覧
   def index
@@ -33,11 +33,18 @@ class PromptsController < ApplicationController
   
   # プロンプトの詳細表示
   def show
-    # タグ候補が生成されていない場合は生成を開始
-    if @prompt.tag_suggestions.empty? && @prompt.url.present?
-      GenerateTagSuggestionsJob.perform_later(@prompt.id)
-      flash.now[:info] = "タグ候補を生成中です。しばらくしてからページを更新してください。"
+    @prompt = current_user.prompts.find(params[:id])
+    
+    # タグ提案を取得
+    @suggested_tags = TagSuggestionService.suggest_tags(@prompt)
+    
+    # タグ提案履歴を保存（既に同じ提案がある場合は保存しない）
+    if @suggested_tags.present?
+      TagSuggestionHistory.record(@prompt, @suggested_tags, current_user)
     end
+    
+    # タグ提案履歴を取得
+    @suggestion_histories = TagSuggestionHistory.for_prompt(@prompt)
   end
   
   # 新規プロンプトフォーム
@@ -96,17 +103,57 @@ class PromptsController < ApplicationController
     redirect_to @prompt
   end
   
+  # タグを適用するアクション
+  def apply_tags
+    @prompt = current_user.prompts.find(params[:id])
+    tags_string = params[:tags]
+    
+    if tags_string.present?
+      # トランザクションを使用して整合性を保証
+      ActiveRecord::Base.transaction do
+        # カンマで区切られたタグを配列に変換し、空白を削除
+        tag_names = tags_string.split(',').map(&:strip).reject(&:empty?)
+        
+        # 既存のタグをクリア
+        @prompt.tags.clear
+        
+        # 新しいタグを追加
+        tag_names.each do |tag_name|
+          # ユーザーに紐づくタグを作成
+          tag = current_user.tags.find_or_create_by!(name: tag_name.downcase)
+          # 関連付けを追加
+          @prompt.tags << tag unless @prompt.tags.include?(tag)
+        end
+        
+        flash[:success] = "タグを更新しました"
+      end
+    else
+      flash[:alert] = "タグを入力してください"
+    end
+    
+    redirect_to @prompt
+  rescue ActiveRecord::RecordInvalid => e
+    flash[:error] = "タグの適用に失敗しました: #{e.message}"
+    redirect_to @prompt
+  end
+  
   # プロンプト更新
   def update
-    if @prompt.update(prompt_params)
-      # タグの更新後に未使用タグを削除
-      Tag.cleanup_unused_tags if Tag.respond_to?(:cleanup_unused_tags)
-      
-      flash[:success] = "プロンプトを更新しました"
-      redirect_to prompts_path # 直接プロンプトまとめページにリダイレクト
-    else
-      render :edit, status: :unprocessable_entity
+    @prompt = current_user.prompts.find(params[:id])
+    
+    # トランザクションを使用して、すべての処理が成功するか失敗するかを保証
+    ActiveRecord::Base.transaction do
+      if @prompt.update(prompt_params)
+        redirect_to @prompt, notice: 'プロンプトが更新されました。'
+      else
+        render :edit, status: :unprocessable_entity
+      end
     end
+  rescue ActiveRecord::RecordInvalid => e
+    # バリデーションエラーなどの処理
+    Rails.logger.error "プロンプト更新エラー: #{e.message}"
+    flash.now[:alert] = "プロンプトの更新に失敗しました: #{e.message}"
+    render :edit, status: :unprocessable_entity
   end
   
   # プロンプト削除
@@ -148,6 +195,29 @@ class PromptsController < ApplicationController
     end
   end
   
+  # タグ提案の評価
+  def rate_tag_suggestion
+    history_id = params[:history_id]
+    rating = params[:rating].to_i
+    
+    history = TagSuggestionHistory.find_by(id: history_id, prompt_id: @prompt.id)
+    
+    if history
+      # 評価を更新（現在と同じ評価なら評価を解除）
+      new_rating = history.rating == rating ? 0 : rating
+      history.update(rating: new_rating)
+      
+      # フィードバックを追加（オプション）
+      history.update(feedback: params[:feedback]) if params[:feedback].present?
+      
+      flash[:success] = "評価を更新しました"
+    else
+      flash[:error] = "履歴が見つかりません"
+    end
+    
+    redirect_to @prompt
+  end
+  
   private
   
   # プロンプトの取得
@@ -162,6 +232,6 @@ class PromptsController < ApplicationController
   
   # ストロングパラメータ
   def prompt_params
-    params.require(:prompt).permit(:url, :title, :tags_text, :description)
+    params.require(:prompt).permit(:url, :title, :description, :tags_text)
   end
 end

@@ -36,6 +36,21 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_11_081451) do
     t.index ["tag_id"], name: "index_prompts_tags_on_tag_id"
   end
 
+  create_table "tag_suggestion_histories", force: :cascade do |t|
+    t.bigint "prompt_id", null: false
+    t.bigint "user_id", null: false
+    t.text "suggested_tags"
+    t.datetime "suggested_at"
+    t.integer "rating", default: 0
+    t.text "feedback"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "suggestion", default: "", null: false
+    t.index ["prompt_id", "suggested_at"], name: "index_tag_suggestion_histories_on_prompt_id_and_suggested_at"
+    t.index ["prompt_id"], name: "index_tag_suggestion_histories_on_prompt_id"
+    t.index ["user_id"], name: "index_tag_suggestion_histories_on_user_id"
+  end
+
   create_table "tag_suggestions", force: :cascade do |t|
     t.bigint "prompt_id", null: false
     t.string "name", null: false
@@ -73,6 +88,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_11_081451) do
   add_foreign_key "prompts", "users"
   add_foreign_key "prompts_tags", "prompts"
   add_foreign_key "prompts_tags", "tags"
+  add_foreign_key "tag_suggestion_histories", "prompts"
+  add_foreign_key "tag_suggestion_histories", "users"
   add_foreign_key "tag_suggestions", "prompts"
   add_foreign_key "tags", "users"
 end

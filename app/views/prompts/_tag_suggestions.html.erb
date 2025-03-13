@@ -16,3 +16,64 @@
     </div>
   </div>
 <% end %>
+
+<div class="tag-suggestions mt-3">
+  <h6 class="text-muted mb-2">AIタグ提案</h6>
+  
+  <div class="ai-conversation border rounded p-3 bg-light">
+    <!-- AI応答メッセージ -->
+    <div class="ai-message mb-3">
+      <small class="text-muted">AI:</small>
+      <div class="p-2 bg-white rounded border">
+        <p class="mb-0">このコンテンツに関連するタグを提案します。以下の情報を分析しました：</p>
+        <ul class="mb-1 small">
+          <li>タイトル: <%= prompt.title %></li>
+          <li>URL: <%= prompt.url %></li>
+          <% if prompt.description.present? %>
+            <li>説明: <%= truncate(prompt.description, length: 100) %></li>
+          <% end %>
+        </ul>
+        <p class="mb-0">関連するタグ候補: <span class="text-primary"><%= @suggested_tags %></span></p>
+        <p class="mb-0 small text-muted">※ カンマ区切りでタグを選択できます</p>
+      </div>
+    </div>
+    
+    <!-- タグ選択フォーム -->
+    <div class="tag-selection">
+      <%= form_with(url: apply_tags_prompt_path(prompt), method: :post, class: "d-flex") do |f| %>
+        <%= f.text_field :tags, value: @suggested_tags, class: "form-control me-2", placeholder: "Rails, プログラミング, 技術記事", 
+                     aria: { label: "タグ入力（カンマ区切り）" } %>
+        <%= f.submit "タグを適用", class: "btn btn-primary" %>
+      <% end %>
+    </div>
+    
+    <!-- タグ提案履歴 -->
+    <% if @suggestion_histories.present? %>
+      <div class="tag-history mt-3">
+        <h6 class="text-muted mb-2 small">過去の提案履歴</h6>
+        <div class="small">
+          <% @suggestion_histories.each do |history| %>
+            <div class="d-flex align-items-center mb-1">
+              <span class="text-secondary me-2"><%= l history.suggested_at, format: :short %></span>
+              <div class="d-flex flex-wrap gap-1">
+                <% history.tags_array.each do |tag| %>
+                  <%= link_to tag, apply_tags_prompt_path(prompt, tags: tag), method: :post, class: "badge bg-light text-dark text-decoration-none" %>
+                <% end %>
+              </div>
+              
+              <!-- 評価ボタン -->
+              <div class="ms-auto d-flex">
+                <%= link_to rate_tag_suggestion_prompt_path(prompt, history_id: history.id, rating: 1), method: :post, class: "text-decoration-none text-muted me-2", title: "役立った" do %>
+                  <i class="bi bi-hand-thumbs-up<%= history.rating == 1 ? '-fill text-success' : '' %>"></i>
+                <% end %>
+                <%= link_to rate_tag_suggestion_prompt_path(prompt, history_id: history.id, rating: -1), method: :post, class: "text-decoration-none text-muted", title: "役立たなかった" do %>
+                  <i class="bi bi-hand-thumbs-down<%= history.rating == -1 ? '-fill text-danger' : '' %>"></i>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

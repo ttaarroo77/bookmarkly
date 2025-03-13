@@ -1,0 +1,90 @@
+- **概要 (日本語)**
+  - **コードスタイルと構造**
+    - 簡潔で慣用的な Ruby コードを記述し、正確な例を示す。
+    - Rails の規約やベストプラクティスに従い、MVC、concerns、helpers などのファイル構成を守る。
+    - オブジェクト指向や関数型プログラミングのパターンを適宜採用する。
+    - コードの重複を避け、繰り返し処理とモジュール化を重視する。
+  - **命名規則**
+    - ファイル名、メソッド名、変数は snake_case を使用する。
+    - クラスやモジュール名は CamelCase を用い、Rails の命名規則に沿う。
+  - **Ruby と Rails の活用**
+    - Ruby 3.x の機能（パターンマッチング、エンドレスメソッドなど）を適切に活用する。
+    - Rails の組み込みヘルパーや ActiveRecord を効果的に利用する。
+  - **文法とフォーマット**
+    - Ruby Style Guide に従い、表現豊かな構文（unless、||=、&. など）を使用する。
+    - 文字列は補完が必要な場合を除き、シングルクォートを優先する。
+  - **エラーハンドリングとバリデーション**
+    - 異常時のみ例外を用い、通常の制御フローには使用しない。
+    - 適切なエラーログとユーザーフレンドリーなメッセージを実装する。
+    - モデルに ActiveModel のバリデーションを実装し、コントローラーでエラーを適切に処理する。
+  - **UI とスタイリング**
+    - Hotwire（Turbo と Stimulus）を利用して、動的かつ SPA のようなインターフェースを実現する。
+    - 基本的には Tailwind CSS を使用するが、指定がある場合は Bootstrap も併用する。
+    - Rails の view helpers やパーシャルを活用して、DRY なビューを維持する。
+  - **パフォーマンス最適化**
+    - データベースインデックスを効果的に活用する。
+    - フラグメントキャッシングやロシアン・ドールキャッシングなどのキャッシュ戦略を実施する。
+    - eager loading を利用し、N+1 クエリを回避する。
+    - includes、joins、select などでデータベースクエリを最適化する。
+  - **主要な規約**
+    - RESTful ルーティングの規約に従う。
+    - 複数のモデルやコントローラー間で共通する動作は concerns を使用して共有する。
+    - 複雑なビジネスロジックは service objects として実装する。
+    - 時間のかかる処理は背景ジョブ（例: Sidekiq）で処理する。
+  - **テスト**
+    - RSpec または Minitest を利用し、包括的なテストを書く。
+    - TDD/BDD のプラクティスに従い、FactoryBot を用いてテストデータを生成する。
+  - **セキュリティ**
+    - Devise や Pundit などを用いて、適切な認証・認可を実装する。
+    - コントローラーで strong parameters を使用する。
+    - XSS、CSRF、SQL インジェクションなどの一般的な脆弱性から保護する。
+  - **リファレンス**
+    - Rails の公式ガイドに従い、ルーティング、コントローラー、モデル、ビューなど各コンポーネントのベストプラクティスを確認する。
+
+
+
+- **詳細 (English)**
+  - **Code Style and Structure**
+    - Write concise, idiomatic Ruby code with clear, accurate examples.
+    - Follow Rails conventions and best practices by organizing files according to the MVC pattern (including concerns and helpers).
+    - Utilize object-oriented and functional programming patterns as appropriate.
+    - Prefer iteration and modularization over code duplication.
+    - Use descriptive variable and method names (e.g., user_signed_in?, calculate_total).
+  - **Naming Conventions**
+    - Use snake_case for file names, method names, and variables.
+    - Use CamelCase for class and module names.
+    - Adhere to Rails naming conventions for models, controllers, and views.
+  - **Ruby and Rails Usage**
+    - Leverage Ruby 3.x features (such as pattern matching and endless methods) when appropriate.
+    - Utilize Rails' built-in helpers and ActiveRecord for efficient database operations.
+  - **Syntax and Formatting**
+    - Follow the Ruby Style Guide (https://rubystyle.guide/).
+    - Use Ruby's expressive syntax (e.g., unless, ||=, &.) for cleaner code.
+    - Prefer single quotes for strings unless interpolation is needed.
+  - **Error Handling and Validation**
+    - Use exceptions strictly for exceptional cases rather than for regular control flow.
+    - Implement robust error logging along with user-friendly error messages.
+    - Apply ActiveModel validations within models and handle errors gracefully in controllers with appropriate flash messages.
+  - **UI and Styling**
+    - Implement dynamic, SPA-like interactions using Hotwire (Turbo and Stimulus).
+    - Develop responsive designs using Tailwind CSS as the default styling framework; if specified, include Bootstrap as well.
+    - Utilize Rails view helpers and partials to maintain DRY views.
+  - **Performance Optimization**
+    - Employ effective database indexing strategies.
+    - Implement caching techniques such as fragment caching and Russian Doll caching.
+    - Avoid N+1 queries by using eager loading.
+    - Optimize database queries with includes, joins, or select.
+  - **Key Conventions**
+    - Adhere to RESTful routing conventions.
+    - Use concerns to share common behaviors across models or controllers.
+    - Implement service objects for managing complex business logic.
+    - Use background jobs (e.g., Sidekiq) for processing time-consuming tasks.
+  - **Testing**
+    - Write comprehensive tests using RSpec or Minitest.
+    - Follow TDD/BDD practices and use factories (FactoryBot) for test data generation.
+  - **Security**
+    - Implement robust authentication and authorization using tools like Devise and Pundit.
+    - Use strong parameters in controllers to secure input.
+    - Protect against common web vulnerabilities such as XSS, CSRF, and SQL injection.
+  - **References**
+    - Consult the official Ruby on Rails guides for best practices in routing, controllers, models, views, and other Rails components.

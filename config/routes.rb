@@ -9,6 +9,8 @@ Rails.application.routes.draw do
     member do
       post 'apply_tag_suggestion/:suggestion_id', to: 'prompts#apply_tag_suggestion', as: :apply_tag_suggestion
       post 'apply_tag_suggestion'
+      post 'apply_tags', to: 'prompts#apply_tags'
+      post 'rate_tag_suggestion', to: 'prompts#rate_tag_suggestion'
     end
   end
   
@@ -19,6 +21,8 @@ Rails.application.routes.draw do
   
   # タグ関連のルーティング（必要な場合）
   get 'prompts/tag/:tag', to: 'prompts#index', as: :prompts_by_tag
+
+  resources :tags
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

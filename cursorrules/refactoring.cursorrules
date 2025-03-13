@@ -1,0 +1,185 @@
+---
+title: "AI駆動開発における追加機能実装・リファクタリングガイドライン"
+description: >
+   本ドキュメントは、プロジェクト固有のリファクタリングガイドラインを定義します。
+   基本方針は main-rule.cursorrules に従い、具体的な実装指針を提供します。
+table_of_contents:
+  - "改修フローと基本方針"
+  - "DB拡張とリファクタリング"
+  - "フロントエンド改修のリファクタリング"
+  - "バックエンド改修のリファクタリング"
+  - "テスト自動化とリファクタリング"
+  - "サンプルコード"
+  - "まとめ"
+sections:
+  - title: "改修フローと基本方針"
+    points:
+      - "アジャイルな小サイクルの実施: 変更は最小限の改修でプロトタイプを作成し、フィードバックを得ながら本実装に進む。"
+      - "一度に大規模な変更を行わず、各層（DB、フロント、バック）の影響範囲を限定する。"
+    steps:
+      - step: "要件洗い出し・優先順位決定"
+        description: "追加機能の目的と影響範囲を明確化する。"
+      - step: "大枠設計"
+        description: "各層の改修箇所をざっくり設計し、必要な変更点を抽出する。"
+      - step: "PoC（スパイク開発）"
+        description: "小さなプロトタイプで動作検証を行う。"
+      - step: "テスト実施"
+        description: "各層のテストで効果や精度を確認する。"
+      - step: "本実装およびリファクタリング"
+        description: "実装後、コードレビューや改善（リファクタリング）を行う。"
+  - title: "DB拡張とリファクタリング"
+    subsections:
+      - title: "スキーマ設計の見直し"
+        description: >
+          追加機能で扱う新データに合わせ、既存スキーマとの整合性を確認する。
+          外部キーやカスケード削除の設定変更時は影響範囲を洗い出す.
+      - title: "既存テーブルへのカラム追加 vs. 新テーブル作成"
+        description: >
+          単一属性の追加で既存エンティティの意味を保つ場合はカラム追加.
+          独立性の高い新属性や、将来的な拡張が予想される場合は新テーブルを作成し、正規化を維持する.
+      - title: "マイグレーションとロールバック"
+        description: >
+          Flyway、Liquibase、Django Migrations などのツールでバージョン管理を実施する.
+          ロールバック用スクリプトの整備により、万が一の際にも迅速に対応できる設計とする.
+      - title: "パフォーマンス対策"
+        description: >
+          適切なインデックス付与、クエリチューニング、キャッシュ（例：Redis）の導入など、
+          スケールアップを見据えた設計を行う.
+  - title: "フロントエンド改修のリファクタリング"
+    subsections:
+      - title: "UI/UXと情報設計の再検討"
+        description: >
+          新機能の配置場所、既存UIとの統一感、アクセシビリティ、レスポンシブ対応を確認する.
+          ユーザビリティテストやE2Eテストを取り入れ、利用者視点の検証を行う.
+      - title: "コンポーネント分割と再利用性の向上"
+        description: >
+          React などのフレームワークを利用する場合、機能を小さな再利用可能なコンポーネントに分割する.
+          共通UIコンポーネント（例：エラーポップアップ、チャート表示など）の抽出を行う.
+      - title: "ステート管理の整理"
+        description: >
+          グローバルとローカルの状態管理の役割を明確にし、Redux、Recoil、React Query などのツールを適切に使い分ける.
+  - title: "バックエンド改修のリファクタリング"
+    subsections:
+      - title: "APIエンドポイント設計の見直し"
+        description: >
+          REST/GraphQL の原則に則り、リソース指向のエンドポイント設計を行う.
+          APIバージョニングにより後方互換性を確保する.
+      - title: "ビジネスロジックの分割と整理"
+        description: >
+          AI推論の前処理、推論処理、後処理の責務をモジュール化する.
+          サービス層、モデル層、コントローラ層など、各層に責任を分割して記述する.
+      - title: "コードレビューの実施"
+        description: >
+          変更点のみならず、AIモデルのバージョン変更や推論ロジックの更新もレビュー対象とし、
+          ペアプログラミングやモブプログラミングで知見を共有する.
+  - title: "テスト自動化とリファクタリング"
+    subsections:
+      - title: "テスト階層の整理"
+        description: >
+          ユニットテスト: 個々の関数・クラスの動作確認.
+          統合テスト: モジュール間の連携を検証.
+          E2Eテスト: ユーザー視点での動作確認を自動化する.
+      - title: "AIモデル特有のテスト"
+        description: >
+          モデルの予測精度（例：平均二乗誤差、F1スコアなど）をメトリクスとして検証する.
+          モックやスタブを活用し、テスト負荷の軽減と迅速な検証を実現する.
+      - title: "CI/CDの導入"
+        description: >
+          GitHub Actions、GitLab CI などを用い、プルリクエストごとにリンター、テスト、ビルド、デプロイを自動実行する.
+  - title: "サンプルコード"
+    samples:
+      - title: "DBマイグレーション例 (Flyway)"
+        language: "sql"
+        code: |
+          -- V5__add_sentiment_table.sql
+          CREATE TABLE IF NOT EXISTS sentiment_analysis (
+              id BIGSERIAL PRIMARY KEY,
+              user_id BIGINT NOT NULL,
+              text_content TEXT NOT NULL,
+              sentiment_score DECIMAL(5, 2),
+              created_at TIMESTAMP DEFAULT now()
+          );
+      - title: "フロントエンドのReactコンポーネント例"
+        language: "jsx"
+        code: |
+          import React, { useState } from 'react';
+          
+          function SentimentChecker() {
+            const [inputText, setInputText] = useState('');
+            const [score, setScore] = useState(null);
+          
+            const handleCheck = async () => {
+              const resp = await fetch('/api/sentiment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: inputText })
+              });
+              const data = await resp.json();
+              setScore(data.score);
+            };
+          
+            return (
+              <div>
+                <h2>Sentiment Checker</h2>
+                <textarea
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  placeholder="文章を入力してください"
+                />
+                <button onClick={handleCheck}>Check</button>
+                {score !== null && <p>Sentiment Score: {score}</p>}
+              </div>
+            );
+          }
+          
+          export default SentimentChecker;
+      - title: "バックエンドAPI例 (Express.js)"
+        language: "javascript"
+        code: |
+          const express = require('express');
+          const router = express.Router();
+          const { analyzeSentiment } = require('../controllers/sentimentController');
+          
+          router.post('/sentiment', async (req, res) => {
+            const { text } = req.body;
+            if (!text) {
+              return res.status(400).json({ error: 'No text provided' });
+            }
+            try {
+              const score = await analyzeSentiment(text);
+              return res.json({ score });
+            } catch (err) {
+              console.error(err);
+              return res.status(500).json({ error: 'Internal Server Error' });
+            }
+          });
+          
+          module.exports = router;
+      - title: "テストスクリプト例 (Jest + Supertest)"
+        language: "javascript"
+        code: |
+          const request = require('supertest');
+          const app = require('../app');
+          
+          describe('Sentiment API', () => {
+            it('should return a score for valid text', async () => {
+              const response = await request(app)
+                .post('/api/sentiment')
+                .send({ text: 'I love this product' });
+              expect(response.status).toBe(200);
+              expect(response.body).toHaveProperty('score');
+              expect(response.body.score).toBeGreaterThanOrEqual(0);
+            });
+          
+            it('should return 400 if text is missing', async () => {
+              const response = await request(app)
+                .post('/api/sentiment')
+                .send({});
+              expect(response.status).toBe(400);
+            });
+          });
+  - title: "まとめ"
+    points:
+      - "継続的リファクタリング: 変更のたびに小さな改善を実施し、技術的負債の蓄積を防ぐ."
+      - "自動化の活用: CI/CD、静的解析ツール、各種テスト自動化により、常にコード品質を担保する."
+      - "コードレビュー文化: ペアプログラミングやモブプログラミングを通して、チーム全体で品質向上に努める."

@@ -1,0 +1,74 @@
+{
+  "cursorrules": {
+    "general": {
+      "documentation": "Always use Markdown for documentation and README files",
+      "structure": "Maintain the existing structure of the README.md file"
+    },
+    "readmeStructure": {
+      "sections": [
+        "Title and Awesome badge",
+        "Logo",
+        "Short description",
+        "Why .cursorrules?",
+        "Table of Contents",
+        "Rules section",
+        "How to Use section",
+        "Contributing section",
+        "License section"
+      ]
+    },
+    "organization": {
+      "mainCategories": [
+        "Frontend Frameworks and Libraries",
+        "Backend and Full-Stack",
+        "Mobile Development",
+        "CSS and Styling",
+        "State Management",
+        "Database and API",
+        "Testing",
+        "Build Tools and Development",
+        "Language-Specific",
+        "Other"
+      ],
+      "fileNaming": "technology-focus-cursorrules-prompt-file",
+      "sorting": "Maintain alphabetical order within each category"
+    },
+    "contentGuidelines": {
+      "focus": "Project-specific instructions and best practices",
+      "documentation": {
+        "useComments": true,
+        "language": "Clear and concise",
+        "context": "Include project context, style guidelines, and common methods"
+      }
+    },
+    "bestPractices": {
+      "consistency": "Maintain consistency in capitalization and punctuation",
+      "cursorAI": "Use correct capitalization and spacing for Cursor AI",
+      "examples": "Focus on practical use cases",
+      "categorization": "Place in most relevant category, cross-reference if needed"
+    },
+    "additionalInsights": {
+      "purpose": "Repo-specific Rules for AI",
+      "location": "Root of the repository",
+      "scope": [
+        "Project structure",
+        "Architectural decisions",
+        "Common libraries/methods",
+        "File type handling",
+        "Coding patterns"
+      ]
+    },
+    "versionControl": {
+      "compatibility": "Designed for both human and AI collaboration",
+      "updatePolicy": "Changes require README.md and related documentation updates",
+      "commitRules": {
+        "safeCommit": {
+          "prefix": "safe:",
+          "description": "Indicates a stable, tested, and verified state",
+          "usage": "Use 'safe:' prefix when committing code that is confirmed working",
+          "example": "git commit -m 'safe: implement basic Todo CRUD operations'"
+        }
+      }
+    }
+  }
+}

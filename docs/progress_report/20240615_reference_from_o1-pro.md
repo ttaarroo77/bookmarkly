@@ -178,3 +178,160 @@ AIによるテスト開発は、特に以下のような複雑なケースで効
 - エラーハンドリング（ネットワーク障害、API制限）
 
 このアプローチを採用することで、テストコードの網羅性が向上し、予期せぬエッジケースに対する堅牢性が高まります。
+
+## 8. 現在の実装状況と今後の課題
+
+### 8.1 実装済みのタグ提案機能
+
+- **TagSuggestionServiceクラス**
+  - OpenAI APIを使用してタグを生成する実装
+  - モックモードによる開発環境での効率的なテスト
+  - エラーハンドリング機能（APIエラー時に適切なフォールバック処理）
+
+- **タグ提案履歴機能**
+  - `TagSuggestionHistory`モデルでのタグ提案保存
+  - 提案履歴の表示とユーザーによる評価機能
+
+- **コントローラと連携**
+  - プロンプト詳細表示時に自動的にタグを提案
+  - 提案履歴の記録と表示
+
+### 8.2 開発中のテストコード
+
+現在、以下のテストコードが作成されています：
+
+1. **サービスクラステスト** (`spec/services/tag_suggestion_service_spec.rb`)
+   ```ruby
+   RSpec.describe TagSuggestionService do
+     describe '.suggest_tags' do
+       let(:user) { create(:user) }
+       let(:prompt) { create(:prompt, 
+         user: user, 
+         title: 'Rubyプログラミング入門ガイド',
+         url: 'https://example.com/ruby-guide',
+         description: 'RailsとRubyでWebアプリケーションを開発する方法について解説しています。'
+       )}
+       
+       context 'モックモードが有効な場合' do
+         before do
+           allow(TagSuggestionService).to receive(:mock_mode?).and_return(true)
+         end
+         
+         it 'タイトルと説明文から適切なタグを抽出すること' do
+           suggested_tags = TagSuggestionService.suggest_tags(prompt)
+           
+           # 結果検証
+           expect(suggested_tags).to be_a(String)
+           expect(suggested_tags).to include(',')
+           
+           tags_array = suggested_tags.split(',').map(&:strip)
+           expect(tags_array).to include('Ruby')
+           expect(tags_array).to include('プログラミング')
+           expect(tags_array).to include('Rails')
+           expect(tags_array.length).to eq(5)
+         end
+       end
+       
+       # 他のコンテキストとテストケース
+     end
+   end
+   ```
+
+2. **システムテスト** (`spec/system/prompt_tags_spec.rb`)
+   ```ruby
+   RSpec.describe "プロンプトのタグ機能", type: :system do
+     # ユーザーとプロンプトのセットアップ
+     
+     it 'プロンプト詳細ページでAIタグ提案が表示されること' do
+       visit prompt_path(prompt)
+       
+       expect(page).to have_content('AIタグ提案')
+       expect(page).to have_content('Ruby, RSpec, テスト, BDD, TDD')
+       expect(page).to have_field('tags')
+       expect(page).to have_button('タグを適用')
+     end
+     
+     # その他のテストケース
+   end
+   ```
+
+3. **統合テスト** (`spec/integration/tag_suggestion_integration_spec.rb`)
+   ```ruby
+   RSpec.describe "タグ提案の統合テスト", type: :request do
+     # セットアップ
+     
+     it 'プロンプト詳細表示時にタグ提案サービスが呼ばれること' do
+       expect(TagSuggestionService).to receive(:suggest_tags).with(prompt).and_return('Rails, GraphQL, API, Ruby, バックエンド')
+       expect(TagSuggestionHistory).to receive(:record).with(prompt, 'Rails, GraphQL, API, Ruby, バックエンド', user)
+       
+       get prompt_path(prompt)
+       
+       expect(response).to have_http_status(:success)
+       expect(response.body).to include('Rails, GraphQL, API, Ruby, バックエンド')
+     end
+     
+     # その他のテストケース
+   end
+   ```
+
+### 8.3 テスト実行と問題解決のポイント
+
+1. **ログイン関連の問題**
+   - テストユーザー: `test@example.com` / パスワード: `test@example.com`
+   - パスワードリセット方法は以下のRailsコンソールコマンドを使用:
+     ```ruby
+     rails c
+     user = User.find_by(email: 'test@example.com')
+     user.password = 'test@example.com'
+     user.password_confirmation = 'test@example.com'
+     user.save
+     ```
+
+2. **テスト環境でのAPIキー管理**
+   - テスト環境では `MOCK_AI=true` を設定してAPIアクセスをモック化
+   - テスト専用の低コストAPIキーを使用する場合は、環境変数またはcredentialsに設定
+
+3. **テストダブル（モック、スタブ）の活用**
+   - 外部サービス（OpenAI API）への依存を適切に分離
+   - レスポンスをモック化することで予測可能なテスト環境を構築
+
+### 8.4 今後の技術的課題
+
+1. **タグ提案精度の向上**
+   - ユーザーの評価データを活用した学習モデルの改善
+   - プロンプトエンジニアリングによるOpenAI APIへのリクエスト最適化
+
+2. **パフォーマンス最適化**
+   - タグ提案のキャッシュ戦略
+   - 類似コンテンツに対する提案の再利用
+
+3. **セキュリティとコスト考慮**
+   - APIキーの安全な管理
+   - API呼び出し回数の最適化
+   - レート制限への対応
+
+## 9. 引き継ぎ時の技術的なチェックポイント
+
+今後の開発を円滑に進めるため、以下の点を必ず確認してください：
+
+1. **開発環境のセットアップ**
+   - 必要な環境変数が正しく設定されているか
+   - 依存パッケージがインストールされているか
+   - データベースマイグレーションが最新か
+
+2. **テスト環境の確認**
+   - テストが正常に実行できるか
+   - モックモードが正しく動作するか
+   - テストカバレッジは十分か
+
+3. **機能動作の検証**
+   - タグ提案UIが正しく表示されるか
+   - 提案されたタグが適用できるか
+   - 履歴表示と評価機能が動作するか
+
+4. **デプロイ前の準備**
+   - 本番環境用の設定が正しいか
+   - APIキーが安全に管理されているか
+   - エラーハンドリングが適切に実装されているか
+
+これらの情報を参考に、AIタグ提案機能の実装と改善を進めてください。問題が発生した場合は、テストコードやこのドキュメントを参照して対応することをお勧めします。

@@ -15,27 +15,39 @@ class Prompt < ApplicationRecord
   # URLを正規化するコールバック
   before_validation :normalize_url
   
-  # タグをカンマ区切りの文字列として取得するゲッター
+  # タグテキストの仮想属性
+  attr_accessor :tags_text
+  
+  # タグテキストを設定するメソッド
   def tags_text
-    tags.map(&:name).join(', ') if tags.present?
+    @tags_text || tags.map(&:name).join(', ')
   end
   
-  # タグをカンマ区切りの文字列からセットするセッター
+  # タグテキストからタグを設定するメソッド
   def tags_text=(text)
-    return if text.blank?
+    @tags_text = text
+  end
+  
+  # タグテキストを保存するメソッド
+  def save_tags
+    return unless @tags_text.present?
     
-    # 既存のタグ関連をクリア
+    # 既存のタグ関連付けをクリア
     self.tags.clear
     
-    # 新しいタグを追加
-    text.split(',').map(&:strip).reject(&:empty?).uniq.each do |tag_name|
-      # ユーザーが存在する場合のみタグを作成
-      if self.user.present?
-        tag = self.user.tags.find_or_initialize_by(name: tag_name.downcase)
-        self.tags << tag unless self.tags.include?(tag)
-      end
+    # タグテキストを分割して処理
+    tag_names = @tags_text.split(',').map(&:strip).reject(&:blank?)
+    
+    tag_names.each do |tag_name|
+      # ユーザーに紐づくタグを検索または作成
+      tag = user.tags.find_or_create_by!(name: tag_name.downcase)
+      # 関連付けを追加
+      self.tags << tag unless self.tags.include?(tag)
     end
   end
+  
+  # コールバックでタグを保存
+  after_save :save_tags, if: -> { @tags_text.present? }
   
   # タグで検索するスコープ
   scope :with_tag, ->(tag_name) {

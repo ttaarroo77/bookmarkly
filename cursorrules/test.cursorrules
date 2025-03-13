@@ -1,0 +1,140 @@
+- **概要 (日本語)**
+  - **名称**: ai-test-analyzer  
+    AIを使用して実装コードとテストコードのペアを分析し、不足テストケースを特定するツールです。
+  - **プロンプトテンプレート**
+    - **名前**: analyze-test-coverage  
+      コード{code}とテスト{test_code}のペアを分析して、そのペアから不足テストケースを特定します。
+    - **プロンプト**:  
+      以下の{{language}}のコード{{code}}とテストコード{{test_code}}のペアを分析しなさい
+      不足しているテストケースを指摘してください。
+      特に「エッジケース・異常系・境界値条件」には、注目しなさい。
+      - [コード] {{selection}}
+      - [テストコード] {{testSelection}}
+    - **入力変数**
+      - language: プログラミング言語 (デフォルト: Ruby)
+      - fileExtension: ファイル拡張子 (デフォルト: rb)
+      - selection: 選択されたコード
+      - testSelection: テストコード
+
+- **詳細 (English)**
+  - **Name**: ai-test-analyzer  
+    An AI tool that analyzes pairs of implementation code and test code to identify missing test cases, with an emphasis on edge cases, error handling, and boundary conditions.
+  - **Prompt Template: analyze-test-coverage**
+    - **Description**: Analyzes code and test code pairs to pinpoint missing test cases.
+    - **Prompt**:  
+      Analyze the following {{language}} code and its associated test code to identify any missing test cases, especially focusing on edge cases, error handling, and boundary conditions.
+      - [Code]  {{selection}}
+      - [Test Code] {{testSelection}}
+    - **Input Variables**
+      - language: Programming language (default: Ruby)
+      - fileExtension: File extension (default: rb)
+      - selection: Selected code snippet
+      - testSelection: Test code snippet
+
+
+
+- **コードとテストの分析の例**
+  - **例 A: Ruby, Rails, RSpec**
+    - **language**: Ruby  
+      **fileExtension**: rb
+    - **code**:
+      ```ruby
+      class User < ApplicationRecord
+        validates :email, presence: true, uniqueness: true
+
+        def active?
+          last_login_at && last_login_at > 30.days.ago
+        end
+      end
+      ```
+    - **test_code**:
+      ```ruby
+      require 'rails_helper'
+
+      RSpec.describe User, type: :model do
+        it 'is valid with a unique email' do
+          user = FactoryBot.build(:user)
+          expect(user).to be_valid
+        end
+
+        it 'is not valid without an email' do
+          user = FactoryBot.build(:user, email: nil)
+          expect(user).not_to be_valid
+        end
+      end
+      ```
+      
+  - **例 B: Python, FastAPI, Pytest**
+    - **language**: Python  
+      **fileExtension**: py
+    - **code**:
+      ```python
+      from fastapi import FastAPI, HTTPException
+      from pydantic import BaseModel
+
+      app = FastAPI()
+
+      class Item(BaseModel):
+          name: str
+          price: float
+
+      items = {}
+
+      @app.post("/items/")
+      async def create_item(item: Item):
+          if item.name in items:
+              raise HTTPException(status_code=400, detail="Item already exists")
+          items[item.name] = item
+          return item
+      ```
+    - **test_code**:
+      ```python
+      from fastapi.testclient import TestClient
+      from main import app
+
+      client = TestClient(app)
+
+      def test_create_item():
+          response = client.post("/items/", json={"name": "apple", "price": 1.2})
+          assert response.status_code == 200
+          data = response.json()
+          assert data["name"] == "apple"
+          assert data["price"] == 1.2
+      ```
+      
+  - **例 C: TypeScript, Jest**
+    - **language**: TypeScript  
+      **fileExtension**: ts
+    - **code**:
+      ```typescript
+      export function sum(a: number, b: number): number {
+        return a + b;
+      }
+      ```
+    - **test_code**:
+      ```typescript
+      import { sum } from './sum';
+
+      test('adds 1 + 2 to equal 3', () => {
+        expect(sum(1, 2)).toBe(3);
+      });
+      ```
+
+- **推測したストーリーの具体例**
+  - **Ruby/Rails の例 (例 A)**  
+    The User model includes basic validations for the presence and uniqueness of an email, along with an `active?` method. However, the tests only cover valid and missing email cases. Missing aspects may include:
+    - Duplicate email scenario (testing uniqueness properly)
+    - Edge cases around the `last_login_at` attribute (e.g., nil values or timezone differences)
+    - Testing the behavior of the `active?` method in borderline conditions (e.g., exactly 30 days ago)
+    
+  - **Python/FastAPI の例 (例 B)**  
+    The FastAPI endpoint handles item creation with a simple uniqueness check. The provided test verifies a successful creation but may be lacking:
+    - Tests for duplicate item creation leading to an HTTPException.
+    - Validation for boundary values of the price (e.g., negative prices or zero).
+    - Error handling for invalid input types or missing fields.
+    
+  - **TypeScript の例 (例 C)**  
+    A simple sum function is demonstrated with a basic test case. Potential missing tests might include:
+    - Handling of negative numbers or very large values.
+    - Input validation (what if non-numeric values are passed?).
+    - Edge cases such as floating point precision issues.
