@@ -71,40 +71,40 @@
 
 ### 3.1 環境準備
 
--   [ ] 必要なGemのインストール
-    -   [ ] `sidekiq` - バックグラウンド処理用
-    -   [ ] `redis` - Sidekiqのバックエンド用
-    -   [ ] `httparty` - HTTP通信用
-    -   [ ] `nokogiri` - HTMLパース用
-    -   [ ] `ruby-openai` - OpenAI API用
--   [ ] Redisサーバーのセットアップ
-    -   [ ] ローカル環境でのRedisインストール
-    -   [ ] Sidekiq設定ファイルの作成
--   [ ] OpenAI APIキーの取得と設定
-    -   [ ] APIキーの発行
-    -   [ ] 環境変数の設定
+-   [×] 必要なGemのインストール
+    -   [×] `sidekiq` - バックグラウンド処理用
+    -   [×] `redis` - Sidekiqのバックエンド用
+    -   [×] `httparty` - HTTP通信用
+    -   [×] `nokogiri` - HTMLパース用
+    -   [×] `ruby-openai` - OpenAI API用
+-   [×] Redisサーバーのセットアップ
+    -   [×] ローカル環境でのRedisインストール
+    -   [×] Sidekiq設定ファイルの作成
+-   [×] OpenAI APIキーの取得と設定
+    -   [×] APIキーの発行
+    -   [×] 環境変数の設定
 
 ### 3.2 タグ削除時の確認ダイアログ実装
 
--   [ ] JavaScriptコントローラーの作成
-    -   [ ] Stimulusコントローラーの作成
-    -   [ ] 確認ダイアログのロジック実装
--   [ ] タグコントローラーの更新
-    -   [ ] タグに関連するプロンプト数の取得機能追加
-    -   [ ] 削除処理の実装
--   [ ] ビューの更新
-    -   [ ] タグリスト表示部分の修正
-    -   [ ] データ属性の追加
+-   [×] JavaScriptコントローラーの作成
+    -   [×] Stimulusコントローラーの作成
+    -   [×] 確認ダイアログのロジック実装
+-   [×] タグコントローラーの更新
+    -   [×] タグに関連するプロンプト数の取得機能追加
+    -   [×] 削除処理の実装
+-   [×] ビューの更新
+    -   [×] タグリスト表示部分の修正
+    -   [×] データ属性の追加
 
 ### 3.3 未使用タグの自動削除機能実装
 
--   [ ] タグモデルの更新
-    -   [ ] コールバック機能の追加
-    -   [ ] 未使用タグ検出メソッドの実装
--   [ ] プロンプトコントローラーの更新
-    -   [ ] タグ更新後の未使用タグ削除処理追加
--   [ ] 通知機能の実装
-    -   [ ] フラッシュメッセージの設定
+-   [×] タグモデルの更新
+    -   [×] コールバック機能の追加
+    -   [×] 未使用タグ検出メソッドの実装
+-   [×] プロンプトコントローラーの更新
+    -   [×] タグ更新後の未使用タグ削除処理追加
+-   [×] 通知機能の実装
+    -   [×] フラッシュメッセージの設定
 
 ### 3.4 AIによるタグ候補提案機能実装
 
@@ -123,6 +123,13 @@
 -   [ ] ビューの更新
     -   [ ] タグ候補表示UI実装
     -   [ ] タグ選択機能の実装
+-   [ ] セキュリティ対策
+    -   [ ] APIキーの適切な管理（credentialsまたは環境変数）
+    -   [ ] エラーハンドリングの実装
+-   [ ] コスト最適化
+    -   [ ] モックモードの実装（開発環境用）
+    -   [ ] キャッシュ戦略の検討
+    -   [ ] リクエスト回数の最適化
 
 ### 3.5 AIによるプロンプト説明文自動生成機能実装
 
@@ -152,6 +159,10 @@
     -   [ ] コントローラーテスト
     -   [ ] ビューテスト
     -   [ ] ユーザーフロー全体テスト
+-   [ ] AIを活用したテスト開発
+    -   [ ] コードとテストのペアをAIに分析させ、不足テストケースを特定
+    -   [ ] エッジケースのテストをAIに生成させる
+    -   [ ] カバレッジ向上のためのテスト追加
 -   [ ] エラーハンドリングの強化
     -   [ ] API接続エラー対応
     -   [ ] バックグラウンド処理エラー対応
@@ -164,14 +175,24 @@
 -   [ ] 環境変数の設定
     -   [ ] OpenAI APIキーの設定
     -   [ ] APIエンドポイントの設定
--   [ ] Herokuアドオンの追加
-    -   [ ] Redisアドオンの追加
+    -   [ ] シークレットキーの安全な管理
+-   [ ] Renderでのデプロイ設定
+    -   [ ] Webサービスの設定
+    -   [ ] 環境変数の登録
+    -   [ ] ビルドコマンドとスタートコマンドの設定
+-   [ ] Redisアドオンの追加
+    -   [ ] Redisアドオンの設定
+    -   [ ] 接続情報の環境変数化
 -   [ ] Procfileの更新
     -   [ ] Webプロセスの設定
     -   [ ] Workerプロセスの設定
 -   [ ] デプロイスクリプトの更新
     -   [ ] マイグレーション実行オプションの追加
     -   [ ] ワーカープロセス再起動オプションの追加
+-   [ ] デプロイ後のセキュリティチェック
+    -   [ ] 環境変数の確認
+    -   [ ] APIアクセス制限の確認
+    -   [ ] エラーログのモニタリング設定
 
 ## 4. 実装詳細
 
@@ -306,6 +327,12 @@ class AiService
     # 既存のタグを取得
     existing_tags = prompt.user.tags.pluck(:name)
 
+    # モックモード確認
+    if ENV["MOCK_AI"] == "true"
+      Rails.logger.info "Using MOCK_AI mode for tag suggestions"
+      return generate_mock_tags(prompt.title)
+    end
+
     # AI APIにリクエスト
     response = OpenAI::Client.new.chat(
       parameters: {
@@ -313,7 +340,9 @@ class AiService
         messages: [
           { role: "system", content: "あなたはタグ提案AIです。URLの内容に基づいて、適切なタグを5つ提案してください。" },
           { role: "user", content: "以下のコンテンツに適したタグを提案してください。既存のタグ: #{existing_tags.join(', ')}\n\nコンテンツ: #{content}" }
-        ]
+        ],
+        temperature: 0.7,
+        max_tokens: 150
       }
     )
 
@@ -331,9 +360,27 @@ class AiService
     end
 
     suggested_tags
+  rescue => e
+    Rails.logger.error "Error in AI Service: #{e.message}"
+    Rails.logger.error e.backtrace.join("\n")
+    return []
   end
 
   private
+
+  def self.generate_mock_tags(title)
+    # 開発環境用のモックタグ生成
+    base_tags = ["Rails", "AI", "開発", "プログラミング", "Ruby", "Web", "API", "フロントエンド", "バックエンド"]
+    title_words = title.downcase.split(/\W+/).reject(&:empty?)
+    
+    # タイトルから関連しそうなタグを抽出
+    related_tags = base_tags.select { |tag| title_words.any? { |word| tag.downcase.include?(word) || word.include?(tag.downcase) } }
+    
+    # 最低3つ、最大5つのタグを返す
+    result = related_tags.take(3)
+    result += base_tags.sample(5 - result.size) if result.size < 5
+    result
+  end
 
   def self.fetch_url_content(url)
     response = HTTParty.get(url)
@@ -366,30 +413,47 @@ end
 # app/jobs/generate_tag_suggestions_job.rb
 class GenerateTagSuggestionsJob < ApplicationJob
   queue_as :default
+  
+  retry_on StandardError, attempts: 3, wait: 5.seconds
 
   def perform(prompt_id)
     prompt = Prompt.find_by(id: prompt_id)
     return unless prompt
 
-    # AIサービスを使用してタグ候補を生成
-    AiService.generate_tag_suggestions(prompt)
+    prompt.update(ai_status: 'processing_tags') if prompt.respond_to?(:ai_status)
+    
+    begin
+      # AIサービスを使用してタグ候補を生成
+      tags = AiService.generate_tag_suggestions(prompt)
+      prompt.update(ai_status: 'completed_tags') if prompt.respond_to?(:ai_status)
+      Rails.logger.info "Generated #{tags.size} tag suggestions for prompt #{prompt_id}"
+    rescue => e
+      prompt.update(ai_status: 'failed_tags', ai_error: e.message) if prompt.respond_to?(:ai_status)
+      Rails.logger.error "Failed to generate tag suggestions: #{e.message}"
+      raise
+    end
   end
 end
 ```
 
 ```ruby
-# app/controllers/prompts_controller.rb
-def create
-  @prompt = current_user.prompts.build(prompt_params)
-
-  if @prompt.save
-    # タグ候補生成ジョブをキューに追加
-    GenerateTagSuggestionsJob.perform_later(@prompt.id)
-    flash[:success] = "プロンプトを保存しました。タグ候補を生成中..."
-    redirect_to prompts_path
+# config/initializers/openai.rb
+OpenAI.configure do |config|
+  config.access_token = if ENV["MOCK_AI"] == "true"
+    "dummy_key_for_mock_mode"
   else
-    render :new
+    ENV.fetch("OPENAI_API_KEY") do
+      if Rails.env.development? || Rails.env.test?
+        Rails.logger.warn "WARNING: OPENAI_API_KEY not set. Using dummy key for development."
+        "dummy_key_for_development"
+      else
+        raise "Missing OPENAI_API_KEY environment variable"
+      end
+    end
   end
+  
+  # タイムアウト設定
+  config.request_timeout = 30 # 秒
 end
 ```
 
@@ -555,6 +619,255 @@ end
 </div>
 ```
 
+### 4.5 AIサービスのテスト実装例
+
+```ruby
+# spec/services/ai_service_spec.rb
+require 'rails_helper'
+
+RSpec.describe AiService do
+  describe '.generate_tag_suggestions' do
+    let(:user) { create(:user) }
+    let(:prompt) { create(:prompt, user: user, url: 'https://example.com', title: 'テスト記事') }
+    
+    context 'モックモードが有効の場合' do
+      before do
+        allow(ENV).to receive(:[]).with("MOCK_AI").and_return("true")
+      end
+      
+      it 'モックタグを返すこと' do
+        tags = AiService.generate_tag_suggestions(prompt)
+        
+        expect(tags).to be_an(Array)
+        expect(tags).not_to be_empty
+        expect(tags.size).to be_between(3, 5)
+      end
+      
+      it 'タイトルに関連するタグを含むこと' do
+        # タイトルに「テスト」が含まれるため、関連タグが返されるべき
+        allow(prompt).to receive(:title).and_return('Rubyプログラミングテスト')
+        
+        tags = AiService.generate_tag_suggestions(prompt)
+        
+        expect(tags).to include('Ruby')
+        expect(tags).to include('プログラミング')
+      end
+    end
+    
+    context 'モックモードが無効の場合' do
+      before do
+        allow(ENV).to receive(:[]).with("MOCK_AI").and_return("false")
+        allow(AiService).to receive(:fetch_url_content).and_return("テスト用コンテンツ")
+      end
+      
+      it 'OpenAI APIにリクエストを送信すること' do
+        client_mock = instance_double(OpenAI::Client)
+        allow(OpenAI::Client).to receive(:new).and_return(client_mock)
+        
+        expect(client_mock).to receive(:chat).and_return({
+          "choices" => [
+            {
+              "message" => {
+                "content" => "タグ1\nタグ2\nタグ3"
+              }
+            }
+          ]
+        })
+        
+        tags = AiService.generate_tag_suggestions(prompt)
+        
+        expect(tags).to eq(['タグ1', 'タグ2', 'タグ3'])
+      end
+      
+      it 'APIエラー時に空配列を返すこと' do
+        client_mock = instance_double(OpenAI::Client)
+        allow(OpenAI::Client).to receive(:new).and_return(client_mock)
+        allow(client_mock).to receive(:chat).and_raise(StandardError.new("API Error"))
+        
+        tags = AiService.generate_tag_suggestions(prompt)
+        
+        expect(tags).to eq([])
+      end
+      
+      it 'URLからコンテンツを取得できない場合は空配列を返すこと' do
+        allow(AiService).to receive(:fetch_url_content).and_return("")
+        
+        tags = AiService.generate_tag_suggestions(prompt)
+        
+        expect(tags).to eq([])
+      end
+    end
+    
+    context 'タグの保存処理' do
+      before do
+        allow(ENV).to receive(:[]).with("MOCK_AI").and_return("false")
+        allow(AiService).to receive(:fetch_url_content).and_return("テスト用コンテンツ")
+        allow_any_instance_of(OpenAI::Client).to receive(:chat).and_return({
+          "choices" => [
+            {
+              "message" => {
+                "content" => "タグ1\nタグ2\nタグ3"
+              }
+            }
+          ]
+        })
+      end
+      
+      it '生成されたタグがTagSuggestionに保存されること' do
+        expect {
+          AiService.generate_tag_suggestions(prompt)
+        }.to change(TagSuggestion, :count).by(3)
+        
+        suggestions = TagSuggestion.where(prompt_id: prompt.id)
+        expect(suggestions.map(&:name)).to match_array(['タグ1', 'タグ2', 'タグ3'])
+        expect(suggestions.map(&:applied).uniq).to eq([false])
+      end
+    end
+  end
+  
+  # fetch_url_contentメソッドのテスト
+  describe '.fetch_url_content' do
+    it '成功したHTTPレスポンスからコンテンツを抽出すること' do
+      html = <<~HTML
+        <html>
+          <head>
+            <title>テストページ</title>
+            <meta name="description" content="テスト用の説明文">
+          </head>
+          <body>
+            <p>段落1</p>
+            <p>段落2</p>
+          </body>
+        </html>
+      HTML
+      
+      http_response = instance_double(HTTParty::Response, success?: true, body: html)
+      allow(HTTParty).to receive(:get).and_return(http_response)
+      
+      content = AiService.send(:fetch_url_content, 'https://example.com')
+      
+      expect(content).to include('テストページ')
+      expect(content).to include('テスト用の説明文')
+      expect(content).to include('段落1')
+      expect(content).to include('段落2')
+    end
+    
+    it 'HTTPリクエストが失敗した場合は空文字を返すこと' do
+      http_response = instance_double(HTTParty::Response, success?: false)
+      allow(HTTParty).to receive(:get).and_return(http_response)
+      
+      content = AiService.send(:fetch_url_content, 'https://example.com')
+      
+      expect(content).to eq('')
+    end
+  end
+  
+  # parse_tags_from_responseメソッドのテスト
+  describe '.parse_tags_from_response' do
+    it '改行区切りのテキストからタグを抽出すること' do
+      response = {
+        "choices" => [
+          {
+            "message" => {
+              "content" => "1. Ruby\n2. Rails\n3. プログラミング"
+            }
+          }
+        ]
+      }
+      
+      tags = AiService.send(:parse_tags_from_response, response)
+      
+      expect(tags).to eq(['Ruby', 'Rails', 'プログラミング'])
+    end
+    
+    it 'カンマ区切りのテキストからタグを抽出すること' do
+      response = {
+        "choices" => [
+          {
+            "message" => {
+              "content" => "Ruby, Rails, プログラミング"
+            }
+          }
+        ]
+      }
+      
+      tags = AiService.send(:parse_tags_from_response, response)
+      
+      expect(tags).to eq(['Ruby', 'Rails', 'プログラミング'])
+    end
+    
+    it '先頭の記号や番号を削除すること' do
+      response = {
+        "choices" => [
+          {
+            "message" => {
+              "content" => "* Ruby\n- Rails\n• プログラミング"
+            }
+          }
+        ]
+      }
+      
+      tags = AiService.send(:parse_tags_from_response, response)
+      
+      expect(tags).to eq(['Ruby', 'Rails', 'プログラミング'])
+    end
+    
+    it 'レスポンスが正しい形式でない場合は空配列を返すこと' do
+      response = { "error" => "Invalid request" }
+      
+      tags = AiService.send(:parse_tags_from_response, response)
+      
+      expect(tags).to eq([])
+    end
+  end
+end
+```
+
+### 4.6 AIを活用したテスト開発手法
+
+#### 精度の高いテストケース特定方法
+
+1. **コードとテストのペアリング分析**
+   ```
+   # AIへのプロンプト例
+   以下のRubyコードとそのRspecテストコードを分析して、不足しているテストケースを指摘してください。
+   特に、エッジケース、異常系、境界値条件に注目してください。
+   
+   [Rubyコード]
+   ```ruby
+   # AIサービスクラスのコード
+   ```
+   
+   [Rspecテストコード]
+   ```ruby
+   # 現在のテストコード
+   ```
+   ```
+
+2. **テストカバレッジ向上のためのプロンプト**
+   ```
+   # AIへのプロンプト例
+   以下のRubyクラスメソッドに対する網羅的なRspecテストを作成してください。
+   各パラメータの有効・無効なケース、戻り値の検証、副作用の検証を含めてください。
+   
+   ```ruby
+   def self.generate_tag_suggestions(prompt)
+     # メソッド実装...
+   end
+   ```
+   ```
+
+3. **AIによるモック・スタブの適切な使用提案**
+   ```
+   # AIへのプロンプト例
+   以下のRubyコードをテストする際の最適なモックとスタブの使用方法を提案してください。
+   外部依存（APIやDBアクセス）を適切に分離しつつ、テストの信頼性を保つ方法を示してください。
+   
+   ```ruby
+   # AIサービスクラスのコード
+   ```
+   ```
+
 ## 5. スケジュール
 
 | タスク | 期間 | 担当者 |
@@ -580,43 +893,69 @@ end
 ## 7. 環境変数設定
 
 ```bash
+# 基本設定
 OPENAI_API_KEY=your_api_key_here
 REDIS_URL=redis://localhost:6379/0
+
+# AI設定
+MOCK_AI=true  # 開発環境ではtrueに設定して実際のAPI呼び出しを避ける
 AI_API_ENDPOINT=https://api.openai.com/v1/chat/completions
+AI_MODEL=gpt-3.5-turbo
+
+# 機能フラグ
+ENABLE_TAG_SUGGESTIONS=true
+ENABLE_DESCRIPTION_GENERATION=true
+
+# セキュリティ
+RAILS_MASTER_KEY=your_master_key_here  # credentials.yml.encの復号に必要
 ```
 
 ## 8. デプロイ手順
 
+### Renderを使ったデプロイ
+
+```bash
+# Renderのウェブサイト（https://render.com）にアクセスし、アカウントを作成・ログイン
+
+# GitHubリポジトリと連携設定
+# 1. Renderダッシュボードから「New Web Service」を選択
+# 2. GitHubリポジトリを連携
+# 3. 以下の設定を行う:
+#    - 名前: prompty-app
+#    - 環境: Ruby
+#    - ビルドコマンド: bundle install && bundle exec rails assets:precompile && bundle exec rails db:migrate
+#    - スタートコマンド: bundle exec puma -C config/puma.rb
+
+# 環境変数の設定
+# Renderダッシュボードの「Environment」セクションに以下を設定:
+OPENAI_API_KEY=your_api_key_here
+RAILS_MASTER_KEY=your_master_key_here
+REDIS_URL=$RENDER_REDIS_URL
+MOCK_AI=false
+RAILS_ENV=production
+```
+
 ### 環境変数の設定
 
 ```bash
-heroku config:set OPENAI_API_KEY=your_api_key_here
-heroku config:set AI_API_ENDPOINT=https://api.openai.com/v1/chat/completions
+# Renderの環境変数設定画面で以下を設定
+render env set OPENAI_API_KEY=your_api_key_here
+render env set AI_API_ENDPOINT=https://api.openai.com/v1/chat/completions
 ```
 
 ### Redisアドオンの追加
 
 ```bash
-heroku addons:create heroku-redis:mini
+# Renderダッシュボードから「Add-ons」を選択し、Redisを追加
+# 自動的に環境変数 RENDER_REDIS_URL が設定されます
 ```
 
-### マイグレーションの実行
+### テスト後のAPIキー管理
 
 ```bash
-heroku run rails db:migrate
-```
-
-### Procfileの更新
-
-```
-web: bundle exec puma -C config/puma.rb
-worker: bundle exec sidekiq -C config/sidekiq.yml
-```
-
-### アプリケーションのデプロイ
-
-```bash
-git push heroku main
+# アプリのテスト終了後は、各サービスのAPIキーを無効化または再生成する
+# - OpenAIのウェブサイトにログインし、APIキーを再生成または削除
+# - 本番環境の環境変数も更新する
 ```
 
 ## 9. まとめ
@@ -635,7 +974,7 @@ git push heroku main
 - **スケジュール**: 各タスクの期間と担当者を示す表。
 - **必要なライブラリ・ツール**: 実装に必要なライブラリとツールをリストアップ。
 - **環境変数設定**: 必要な環境変数を明示。
-- **デプロイ手順**: Herokuへのデプロイ手順を説明。
+- **デプロイ手順**: Renderを使ったデプロイ手順を説明。
 - **まとめ**: プロジェクト全体の要約と、実装上の注意点を記述。
 
 このドキュメントは、Promptyアプリケーションの機能拡張に関する包括的なガイドとして機能し、開発チームがスムーズに作業を進めるための情報を提供します。

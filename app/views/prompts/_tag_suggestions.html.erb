@@ -1,17 +1,21 @@
-<% if tag_suggestions.present? %>
-  <div class="tag-suggestions mt-3" data-controller="tag-suggestion">
-    <h6 class="text-muted">タグ候補:</h6>
-    <div class="tag-suggestions-list">
-      <% tag_suggestions.each do |tag| %>
-        <span class="badge bg-light text-dark me-2 mb-2 tag-suggestion" 
-              data-tag="<%= tag %>"
-              data-action="click->tag-suggestion#addTag"
-              data-tag-suggestion-target="suggestion">
-          <%= tag %>
-          <i class="bi bi-plus-circle-fill ms-1"></i>
-        </span>
+<div class="tag-suggestions">
+  <h3>タグ候補</h3>
+  <% if @prompt.tag_suggestions.empty? %>
+    <p>タグ候補を生成中です...</p>
+  <% else %>
+    <div class="suggestions-list">
+      <% @prompt.tag_suggestions.order(confidence: :desc).each do |suggestion| %>
+        <div class="suggestion-item <%= suggestion.applied? ? 'applied' : '' %>">
+          <span class="tag-name"><%= suggestion.name %></span>
+          <span class="confidence">(<%= number_to_percentage(suggestion.confidence * 100, precision: 0) %>)</span>
+          <% unless suggestion.applied? %>
+            <%= button_to '適用',
+                         apply_tag_suggestion_prompt_path(@prompt, suggestion_id: suggestion.id),
+                         class: 'apply-button',
+                         method: :post %>
+          <% end %>
+        </div>
       <% end %>
     </div>
-    <small class="text-muted">※ クリックするとタグが追加されます</small>
-  </div>
-<% end %>
+  <% end %>
+</div>

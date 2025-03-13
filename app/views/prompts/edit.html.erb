@@ -1,13 +1,51 @@
-<div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3">プロンプトの編集</h1>
-    <div>
-      <%= link_to '削除', prompt_path(@prompt), 
-                  method: :delete, 
-                  data: { confirm: '本当に削除しますか？' }, 
-                  class: 'btn btn-outline-danger' %>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h1 class="h5 mb-0">プロンプト編集</h1>
+          <div>
+            <button type="button" class="btn btn-sm btn-outline-danger" id="delete-prompt-btn" data-prompt-id="<%= @prompt.id %>">
+              削除
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <%= render 'form', prompt: @prompt %>
+        </div>
+      </div>
     </div>
   </div>
-
-  <%= render 'form', prompt: @prompt %>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 削除ボタン機能
+    const deleteButton = document.getElementById('delete-prompt-btn');
+    if (deleteButton) {
+      deleteButton.addEventListener('click', function() {
+        const promptId = this.getAttribute('data-prompt-id');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        // 削除リクエストを送信
+        fetch(`/prompts/${promptId}`, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRF-Token': csrfToken,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        })
+        .then(response => {
+          // 成功したら一覧ページへリダイレクト
+          window.location.href = '/prompts';
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          // エラーが発生しても一覧ページへリダイレクト
+          window.location.href = '/prompts';
+        });
+      });
+    }
+  });
+</script>

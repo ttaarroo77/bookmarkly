@@ -5,7 +5,11 @@ Rails.application.routes.draw do
   root 'prompts#index'
   
   # ブックマーク関連のルーティング
-  resources :prompts
+  resources :prompts do
+    member do
+      post 'apply_tag_suggestion/:suggestion_id', to: 'prompts#apply_tag_suggestion', as: :apply_tag_suggestion
+    end
+  end
   
   # ユーザー関連のルーティング
   get 'mypage', to: 'users#show', as: :mypage

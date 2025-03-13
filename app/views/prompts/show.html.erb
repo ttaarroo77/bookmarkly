@@ -28,12 +28,51 @@
             </div>
           </div>
           
+          <% if @prompt.description.present? %>
+            <div class="mb-4">
+              <h2 class="h5 mb-2">説明</h2>
+              <p><%= @prompt.description %></p>
+              <% if @prompt.ai_processed_at.present? %>
+                <small class="text-muted">AI生成: <%= l @prompt.ai_processed_at, format: :short %></small>
+              <% end %>
+            </div>
+          <% elsif @prompt.respond_to?(:ai_processing_status) && @prompt.ai_processing_status == 'processing' %>
+            <div class="mb-4">
+              <h2 class="h5 mb-2">説明</h2>
+              <div class="d-flex align-items-center">
+                <div class="spinner-border spinner-border-sm me-2" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                <span>AI説明文を生成中...</span>
+              </div>
+            </div>
+          <% end %>
+          
           <% if @prompt.tags.present? %>
             <div class="mb-4">
               <h2 class="h5 mb-2">タグ</h2>
               <div>
                 <% @prompt.tags.each do |tag| %>
-                  <%= link_to tag, prompts_by_tag_path(tag), class: "badge bg-light text-dark text-decoration-none me-1 mb-1" %>
+                  <%= link_to tag.name, prompts_by_tag_path(tag: tag.name), class: "badge bg-light text-dark text-decoration-none me-1 mb-1" %>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+          
+          <% if @prompt.tag_suggestions.where(applied: false).exists? %>
+            <div class="mb-4">
+              <h2 class="h5 mb-2">タグ候補</h2>
+              <div class="d-flex flex-wrap gap-2">
+                <% @prompt.tag_suggestions.where(applied: false).order(confidence: :desc).each do |suggestion| %>
+                  <div class="d-flex align-items-center">
+                    <%= link_to apply_tag_suggestion_prompt_path(@prompt, suggestion_id: suggestion.id), 
+                                method: :post, 
+                                class: "badge bg-light text-dark text-decoration-none d-flex align-items-center" do %>
+                      <span><%= suggestion.name %></span>
+                      <span class="ms-1 text-muted">(<%= number_to_percentage(suggestion.confidence * 100, precision: 0) %>)</span>
+                      <span class="ms-1 text-primary">+</span>
+                    <% end %>
+                  </div>
                 <% end %>
               </div>
             </div>
@@ -48,9 +87,10 @@
             <%= link_to edit_prompt_path(@prompt), class: "btn btn-dark me-2" do %>
               <span>編集</span>
             <% end %>
-            <%= button_to prompt_path(@prompt), method: :delete, class: "btn btn-outline-danger", form: { data: { turbo_confirm: "このプロンプトを削除しますか？" } } do %>
-              <span>削除</span>
-            <% end %>
+            
+            <button type="button" class="btn btn-outline-danger" id="delete-prompt-btn" data-prompt-id="<%= @prompt.id %>">
+              削除
+            </button>
           </div>
         </div>
       </div>
@@ -59,7 +99,8 @@
 </div>
 
 <script>
-  document.addEventListener('turbo:load', function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    // URLコピー機能
     const copyButtons = document.querySelectorAll('.copy-btn');
     
     copyButtons.forEach(button => {
@@ -80,5 +121,33 @@
         });
       });
     });
+    
+    // 削除ボタン機能
+    const deleteButton = document.getElementById('delete-prompt-btn');
+    if (deleteButton) {
+      deleteButton.addEventListener('click', function() {
+        const promptId = this.getAttribute('data-prompt-id');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        // 削除リクエストを送信
+        fetch(`/prompts/${promptId}`, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRF-Token': csrfToken,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        })
+        .then(response => {
+          // 成功したら一覧ページへリダイレクト
+          window.location.href = '/prompts';
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          // エラーが発生しても一覧ページへリダイレクト
+          window.location.href = '/prompts';
+        });
+      });
+    }
   });
 </script>

@@ -1,6 +1,6 @@
 class PromptsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_prompt, only: [:show, :edit, :update, :destroy]
+  before_action :set_prompt, only: [:show, :edit, :update, :destroy, :apply_tag_suggestion]
   
   # プロンプト一覧
   def index
@@ -33,75 +33,72 @@ class PromptsController < ApplicationController
   
   # プロンプトの詳細表示
   def show
+    # タグ候補が生成されていない場合は生成を開始
+    if @prompt.tag_suggestions.empty? && @prompt.url.present?
+      GenerateTagSuggestionsJob.perform_later(@prompt.id)
+      flash.now[:info] = "タグ候補を生成中です。しばらくしてからページを更新してください。"
+    end
   end
   
   # 新規プロンプトフォーム
   def new
     @prompt = Prompt.new
+    # URLパラメータがある場合はURLのみ設定し、AIタグ候補を取得
+    if params[:url].present?
+      @prompt.url = params[:url]
+      @tag_suggestions = AiTagSuggester.new(current_user).suggest_tags_for_url(@prompt.url)
+    end
   end
-  
+
   # プロンプト編集フォーム
   def edit
   end
   
   # プロンプト作成
   def create
-    @prompt = current_user.prompts.new(prompt_params.except(:tags_text))
+    @prompt = current_user.prompts.build(prompt_params)
     
-    respond_to do |format|
-      if @prompt.save
-        # プロンプト保存後にタグを設定
-        if params[:prompt][:tags_text].present?
-          begin
-            @prompt.tags_text = params[:prompt][:tags_text]
-            @prompt.save
-          rescue => e
-            Rails.logger.error "タグ保存エラー: #{e.message}"
-            @prompt.errors.add(:tags_text, "の保存に失敗しました")
-            raise ActiveRecord::Rollback
-          end
-        end
-        
-        # AI概要生成を開始
-        @prompt.generate_description if @prompt.url.present?
-        
-        # タグ一覧と出現回数を再取得
-        @prompts = current_user.prompts.order(created_at: :desc)
-        @tags = current_user.tags.reload
-        @tag_counts = {}
-        @tags.each do |tag|
-          @tag_counts[tag.name] = tag.prompts.where(user_id: current_user.id).count
-        end
-        
-        format.html { redirect_to prompts_path, notice: 'プロンプトが正常に作成されました。' }
-        format.json { render :show, status: :created, location: @prompt }
-      else
-        # エラー時は再度フォームを表示
-        @prompts = current_user.prompts.order(created_at: :desc)
-        @tags = current_user.tags
-        
-        # タグの出現回数をカウント
-        @tag_counts = {}
-        @tags.each do |tag|
-          @tag_counts[tag.name] = tag.prompts.where(user_id: current_user.id).count
-        end
-        
-        format.html { render :index }
-        format.json { render json: @prompt.errors, status: :unprocessable_entity }
-      end
+    if @prompt.save
+      # タグ候補生成ジョブを実行
+      GenerateTagSuggestionsJob.perform_later(@prompt.id)
+      
+      # AI説明文生成（実装されている場合）
+      @prompt.generate_description if @prompt.respond_to?(:generate_description)
+      
+      flash[:success] = "プロンプトを保存しました。AIによるタグ候補を生成中です。"
+      redirect_to prompts_path # 詳細ページではなく一覧ページにリダイレクト
+    else
+      render :new, status: :unprocessable_entity
     end
+  end
+  
+  # タグ候補の適用
+  def apply_tag_suggestion
+    suggestion = @prompt.tag_suggestions.find(params[:suggestion_id])
+    
+    # ユーザーのタグを検索または作成
+    tag = current_user.tags.find_or_create_by(name: suggestion.name.downcase)
+    
+    # プロンプトにタグを追加（既に追加されている場合は何もしない）
+    unless @prompt.tags.include?(tag)
+      @prompt.tags << tag
+      suggestion.update(applied: true)
+      flash[:success] = "タグ「#{tag.name}」を適用しました"
+    else
+      flash[:info] = "タグ「#{tag.name}」は既に適用されています"
+    end
+    
+    redirect_to @prompt
   end
   
   # プロンプト更新
   def update
-    @prompt = current_user.prompts.find(params[:id])
-    
     if @prompt.update(prompt_params)
       # タグの更新後に未使用タグを削除
-      Tag.cleanup_unused_tags
+      Tag.cleanup_unused_tags if Tag.respond_to?(:cleanup_unused_tags)
       
       flash[:success] = "プロンプトを更新しました"
-      redirect_to prompts_path
+      redirect_to prompts_path # 直接プロンプトまとめページにリダイレクト
     else
       render :edit, status: :unprocessable_entity
     end
@@ -109,25 +106,53 @@ class PromptsController < ApplicationController
   
   # プロンプト削除
   def destroy
-    @prompt = current_user.prompts.find(params[:id])
-    
-    if @prompt.destroy
-      # プロンプト削除後に未使用タグを削除
-      Tag.cleanup_unused_tags
+    begin
+      @prompt = current_user.prompts.find(params[:id])
+      success = @prompt.destroy
       
-      flash[:success] = "プロンプトを削除しました"
-    else
-      flash[:error] = "プロンプトの削除に失敗しました"
+      if success
+        # プロンプト削除後に未使用タグを削除
+        Tag.cleanup_unused_tags if Tag.respond_to?(:cleanup_unused_tags)
+        message = "プロンプトを削除しました"
+      else
+        message = "プロンプトの削除に失敗しました"
+      end
+    rescue => e
+      Rails.logger.error "Error deleting prompt: #{e.message}"
+      success = false
+      message = "プロンプトの削除中にエラーが発生しました"
     end
     
-    redirect_to prompts_path
+    # フォーマットに応じてレスポンスを返す
+    respond_to do |format|
+      format.html do
+        flash[:success] = message if success
+        flash[:error] = message unless success
+        redirect_to prompts_path
+      end
+      format.json do
+        if success
+          render json: { success: true, message: message }, status: :ok
+        else
+          render json: { success: false, message: message }, status: :unprocessable_entity
+        end
+      end
+      format.any do
+        head :ok
+      end
+    end
   end
   
   private
   
   # プロンプトの取得
   def set_prompt
-    @prompt = current_user.prompts.find(params[:id])
+    begin
+      @prompt = current_user.prompts.find(params[:id])
+    rescue ActiveRecord::RecordNotFound
+      flash[:error] = "指定されたプロンプトは存在しないか、既に削除されています"
+      redirect_to prompts_path
+    end
   end
   
   # ストロングパラメータ

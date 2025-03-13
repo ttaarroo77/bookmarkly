@@ -29,5 +29,8 @@ module Prompty
 
     # キューアダプターをSidekiqに設定
     config.active_job.queue_adapter = :sidekiq
+
+    # Servicesディレクトリを自動ロード対象に追加
+    config.autoload_paths += %W(#{config.root}/app/services)
   end
 end

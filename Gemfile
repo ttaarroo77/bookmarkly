@@ -1,3 +1,6 @@
+# 環境変数管理用（最上部に配置）
+gem 'dotenv-rails', groups: [:development, :test]
+
 ruby "3.2.2"  # または最新の安定版
 source "https://rubygems.org"
 
@@ -48,6 +51,12 @@ gem 'faraday'
 
 # HTMLパース
 gem 'nokogiri'
+
+# HTTP通信用
+gem 'httparty'
+
+# HTTP通信用（より高機能なクライアント）
+gem 'http'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

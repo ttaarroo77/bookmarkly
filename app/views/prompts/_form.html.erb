@@ -27,12 +27,25 @@
     
     <div class="mb-3">
       <%= f.label :tags_text, "タグ（カンマ区切り）", class: "form-label" %>
-      <%= f.text_field :tags_text, class: "form-control", value: prompt.tags_text %>
+      <%= f.text_field :tags_text, class: "form-control" %>
     </div>
+    
+    <% if prompt.persisted? && prompt.respond_to?(:tag_suggestions) && prompt.tag_suggestions.exists? %>
+      <div class="tag-suggestions mt-2">
+        <p class="text-muted mb-2">タグ候補:</p>
+        <div class="d-flex flex-wrap gap-2">
+          <% prompt.tag_suggestions.where(applied: false).each do |suggestion| %>
+            <%= link_to suggestion.name, apply_tag_suggestion_prompt_path(prompt, suggestion_id: suggestion.id),
+                method: :post,
+                class: "badge bg-light text-dark p-2" %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
     
     <div class="actions d-flex justify-content-end gap-2">
       <%= link_to '戻る', prompts_path, class: 'btn btn-light' %>
-      <%= f.submit '更新', class: 'btn', style: 'background-color: #212529; color: white;' %>
+      <%= f.submit prompt.persisted? ? '更新' : '保存', class: 'btn', style: 'background-color: #212529; color: white;', data: { turbo: false } %>
     </div>
   <% end %>
 </div> 

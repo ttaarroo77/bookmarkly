@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_10_000003) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_11_081451) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -36,11 +36,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_10_000003) do
     t.index ["tag_id"], name: "index_prompts_tags_on_tag_id"
   end
 
+  create_table "tag_suggestions", force: :cascade do |t|
+    t.bigint "prompt_id", null: false
+    t.string "name", null: false
+    t.float "confidence"
+    t.boolean "applied", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["prompt_id", "name"], name: "index_tag_suggestions_on_prompt_id_and_name", unique: true
+    t.index ["prompt_id"], name: "index_tag_suggestions_on_prompt_id"
+  end
+
   create_table "tags", force: :cascade do |t|
     t.string "name", null: false
     t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "description"
     t.index ["name", "user_id"], name: "index_tags_on_name_and_user_id", unique: true
     t.index ["user_id"], name: "index_tags_on_user_id"
   end
@@ -61,5 +73,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_10_000003) do
   add_foreign_key "prompts", "users"
   add_foreign_key "prompts_tags", "prompts"
   add_foreign_key "prompts_tags", "tags"
+  add_foreign_key "tag_suggestions", "prompts"
   add_foreign_key "tags", "users"
 end

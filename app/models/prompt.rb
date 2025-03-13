@@ -1,6 +1,7 @@
 class Prompt < ApplicationRecord
   belongs_to :user
   has_and_belongs_to_many :tags
+  has_many :tag_suggestions, dependent: :destroy
   
   # バリデーション
   validates :url, presence: true, 
@@ -55,17 +56,9 @@ class Prompt < ApplicationRecord
 
   # AI概要生成の開始
   def generate_description
-    # 同期的に処理
-    begin
-      self.update(
-        description: "このプロンプトの説明文はAIによって生成されます。", 
-        ai_processing_status: :completed,
-        ai_processed_at: Time.current
-      )
-    rescue => e
-      Rails.logger.error "AI概要生成エラー: #{e.message}"
-      self.update(ai_processing_status: :failed) if self.persisted?
-    end
+    # 非同期処理に変更
+    update(ai_processing_status: :processing)
+    GenerateDescriptionJob.perform_later(id)
   end
 
   private
