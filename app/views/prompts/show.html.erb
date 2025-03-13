@@ -59,24 +59,7 @@
             </div>
           <% end %>
           
-          <% if @prompt.tag_suggestions.where(applied: false).exists? %>
-            <div class="mb-4">
-              <h2 class="h5 mb-2">タグ候補</h2>
-              <div class="d-flex flex-wrap gap-2">
-                <% @prompt.tag_suggestions.where(applied: false).order(confidence: :desc).each do |suggestion| %>
-                  <div class="d-flex align-items-center">
-                    <%= link_to apply_tag_suggestion_prompt_path(@prompt, suggestion_id: suggestion.id), 
-                                method: :post, 
-                                class: "badge bg-light text-dark text-decoration-none d-flex align-items-center" do %>
-                      <span><%= suggestion.name %></span>
-                      <span class="ms-1 text-muted">(<%= number_to_percentage(suggestion.confidence * 100, precision: 0) %>)</span>
-                      <span class="ms-1 text-primary">+</span>
-                    <% end %>
-                  </div>
-                <% end %>
-              </div>
-            </div>
-          <% end %>
+          <%= render 'tag_suggestions', prompt: @prompt %>
           
           <div class="mb-4">
             <h2 class="h5 mb-2">登録日時</h2>

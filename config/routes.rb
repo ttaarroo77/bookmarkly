@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   resources :prompts do
     member do
       post 'apply_tag_suggestion/:suggestion_id', to: 'prompts#apply_tag_suggestion', as: :apply_tag_suggestion
+      post 'apply_tag_suggestion'
     end
   end
   

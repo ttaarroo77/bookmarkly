@@ -5,8 +5,11 @@ class Prompt < ApplicationRecord
   
   # バリデーション
   validates :url, presence: true, 
-                 format: { with: URI::regexp(%w(http https)), message: "は有効なURLではありません" }
-  validates :url, uniqueness: { scope: :user_id, message: "は既に登録されています" }
+                 uniqueness: { 
+                   scope: :user_id, 
+                   message: 'はすでに登録されています',
+                   case_sensitive: false 
+                 }
   validates :title, presence: true
   
   # URLを正規化するコールバック

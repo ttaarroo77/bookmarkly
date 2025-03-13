@@ -39,7 +39,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_11_081451) do
   create_table "tag_suggestions", force: :cascade do |t|
     t.bigint "prompt_id", null: false
     t.string "name", null: false
-    t.float "confidence"
+    t.float "confidence", default: 0.0
     t.boolean "applied", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

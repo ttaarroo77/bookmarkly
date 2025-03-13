@@ -66,8 +66,13 @@ class PromptsController < ApplicationController
       @prompt.generate_description if @prompt.respond_to?(:generate_description)
       
       flash[:success] = "プロンプトを保存しました。AIによるタグ候補を生成中です。"
-      redirect_to prompts_path # 詳細ページではなく一覧ページにリダイレクト
+      redirect_to prompts_path
     else
+      # URLが重複している場合は既存のプロンプトへのリンクを表示するため、
+      # 既存のプロンプトを@existing_promptとして渡す
+      if @prompt.errors[:url].include?("は既に登録されています")
+        @existing_prompt = current_user.prompts.find_by(url: @prompt.url)
+      end
       render :new, status: :unprocessable_entity
     end
   end

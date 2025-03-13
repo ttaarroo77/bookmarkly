@@ -11,4 +11,7 @@ OpenAI.configure do |config|
       end
     end
   end
+  
+  # タイムアウト設定
+  config.request_timeout = 30 # 秒
 end
