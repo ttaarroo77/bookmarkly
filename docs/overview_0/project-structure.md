@@ -1,9 +1,9 @@
 ---
 name: "docs/overview_0/project-structure.md"
 title: "プロジェクト構造概要 (Project Structure)"
-description: "Bookmark app - ディレクトリ構成など"
+description: "Prompty app - ディレクトリ構成など"
 ---
-以下は、**Bookmarkly**プロジェクトにおける**docs/overview_0/project-structure.md** の内容です。こちらは、アプリケーションのディレクトリ構成や、主要なファイル・ディレクトリの役割についての説明を行います。
+以下は、**Prompty**プロジェクトにおける**docs/overview_0/project-structure.md** の内容です。こちらは、アプリケーションのディレクトリ構成や、主要なファイル・ディレクトリの役割についての説明を行います。
 
 ---
 
@@ -11,20 +11,20 @@ description: "Bookmark app - ディレクトリ構成など"
 
 ## 1. ディレクトリ構成
 
-以下は、**Bookmarkly**アプリケーションの基本的なディレクトリ構成です。シンプルな構成にして、初心者でも理解しやすいようにしています。
+以下は、**Prompty**アプリケーションの基本的なディレクトリ構成です。シンプルな構成にして、初心者でも理解しやすいようにしています。
 
 ```
 app/
 ├── controllers/         # コントローラー（Railsアプリのロジック）
-│   ├── bookmarks_controller.rb
+│   ├── prompts_controller.rb
 │   ├── sessions_controller.rb
 │   └── users_controller.rb
 ├── models/              # モデル（データベースとのやりとり）
-│   ├── bookmark.rb
+│   ├── prompt.rb
 │   ├── user.rb
 │   └── tag.rb
 ├── views/               # ビュー（ユーザーに表示される画面）
-│   ├── bookmarks/       # ブックマーク関連のビュー
+│   ├── prompts/       # ブックマーク関連のビュー
 │   ├── sessions/        # ログイン・登録関連のビュー
 │   └── users/           # ユーザー関連のビュー
 ├── helpers/             # ビューで使うヘルパーメソッド
@@ -55,7 +55,7 @@ app/
 ## 2. 主要ファイルの役割
 
 ### 2.1. `app/controllers/`
-- **bookmarks_controller.rb**  
+- **prompts_controller.rb**  
   - ブックマークのCRUD（作成、読み取り、更新、削除）処理を担当。
   - ユーザーがブックマークを登録したり、検索したり、削除したりするロジックを実装します。
 
@@ -66,7 +66,7 @@ app/
   - ユーザーの登録・更新・削除・プロフィール管理などを担当します。
 
 ### 2.2. `app/models/`
-- **bookmark.rb**  
+- **prompt.rb**  
   - ブックマークのデータモデル。`title`（タイトル）、`url`（URL）、`description`（概要）、`tags`（タグ）などを格納します。
 
 - **user.rb**  
@@ -76,7 +76,7 @@ app/
   - タグモデル。各ブックマークにタグを付け、検索機能で使用します。
 
 ### 2.3. `app/views/`
-- **bookmarks/**  
+- **prompts/**  
   - ブックマーク関連のビュー（フォーム、一覧表示など）を管理。
 
 - **sessions/**  
@@ -90,15 +90,15 @@ app/
 
 ```ruby
 Rails.application.routes.draw do
-  root 'bookmarks#index'
-  resources :bookmarks
+  root 'prompts#index'
+  resources :prompts
   resource :session, only: [:new, :create, :destroy]
   resources :users, only: [:new, :create, :show, :edit, :update]
 end
 ```
 
 ### 2.5. `db/migrate/`
-- **マイグレーションファイル**は、データベースのスキーマを管理します。例えば、`create_bookmarks.rb` というファイルでブックマークテーブルを作成します。
+- **マイグレーションファイル**は、データベースのスキーマを管理します。例えば、`create_prompts.rb` というファイルでブックマークテーブルを作成します。
 
 ### 2.6. `test/`
 - **RSpecテスト**  
@@ -126,9 +126,9 @@ gem 'pg'  # PostgreSQLのデータベースを使用
   - `/register`: ユーザー登録画面
 
 - **ブックマーク関連**
-  - `/bookmarks`: ブックマークの一覧ページ
-  - `/bookmarks/new`: 新しいブックマークを追加するフォーム
-  - `/bookmarks/:id`: 特定のブックマークの詳細ページ
+  - `/prompts`: ブックマークの一覧ページ
+  - `/prompts/new`: 新しいブックマークを追加するフォーム
+  - `/prompts/:id`: 特定のブックマークの詳細ページ
 
 - **マイページ関連**
   - `/mypage`: ユーザーのプロフィール管理画面
@@ -137,7 +137,7 @@ gem 'pg'  # PostgreSQLのデータベースを使用
 
 ## 4. データベース設計
 
-### `bookmarks` テーブル
+### `prompts` テーブル
 | カラム       | 型         | 備考                     |
 |--------------|------------|--------------------------|
 | id           | bigint     | 自動採番                  |

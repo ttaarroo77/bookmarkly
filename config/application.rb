@@ -6,7 +6,7 @@ require "rails/all"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-module Bookmarkly
+module Prompty
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.0
@@ -23,5 +23,14 @@ module Bookmarkly
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # Workerディレクトリを自動ロード対象に追加
+    config.autoload_paths += %W(#{config.root}/app/workers)
+
+    # キューアダプターをSidekiqに設定
+    config.active_job.queue_adapter = :sidekiq
+
+    # Servicesディレクトリを自動ロード対象に追加
+    config.autoload_paths += %W(#{config.root}/app/services)
   end
 end

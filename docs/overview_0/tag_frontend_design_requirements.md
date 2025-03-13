@@ -1,7 +1,7 @@
 ---
 name: "docs/overview_0/tag_frontend_design_requirements.md"
 title: "タグ機能のフロントエンドデザイン要件定義書"
-description: "Bookmark app - タグ機能のUI/UXデザイン要件"
+description: "Prompty app - タグ機能のUI/UXデザイン要件"
 ---
 
 # タグ機能のフロントエンドデザイン要件

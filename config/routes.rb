@@ -2,10 +2,15 @@ Rails.application.routes.draw do
   devise_for :users
   
   # ルートパスの設定
-  root 'bookmarks#index'
+  root 'prompts#index'
   
   # ブックマーク関連のルーティング
-  resources :bookmarks
+  resources :prompts do
+    member do
+      post 'apply_tag_suggestion/:suggestion_id', to: 'prompts#apply_tag_suggestion', as: :apply_tag_suggestion
+      post 'apply_tag_suggestion'
+    end
+  end
   
   # ユーザー関連のルーティング
   get 'mypage', to: 'users#show', as: :mypage
@@ -13,7 +18,7 @@ Rails.application.routes.draw do
   patch 'mypage', to: 'users#update'
   
   # タグ関連のルーティング（必要な場合）
-  get 'bookmarks/tag/:tag', to: 'bookmarks#index', as: :bookmarks_by_tag
+  get 'prompts/tag/:tag', to: 'prompts#index', as: :prompts_by_tag
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 

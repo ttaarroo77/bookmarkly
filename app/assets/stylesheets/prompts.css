@@ -1,0 +1,80 @@
+.tag-suggestions {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+  display: block; /* 常に表示 */
+}
+
+.tag-suggestions h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.tag-suggestion-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-suggestion {
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: #e9ecef;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.tag-suggestion:hover {
+  background-color: #dee2e6;
+}
+
+.tag-suggestion.selected {
+  background-color: #007bff;
+  color: white;
+}
+
+.new-tag {
+  font-size: 0.8em;
+  color: #28a745;
+  margin-left: 5px;
+}
+
+.tag-suggestion small {
+  font-size: 0.8em;
+  color: #6c757d;
+  margin-left: 5px;
+}
+
+.tag-suggestion.selected small {
+  color: #e9ecef;
+}
+
+/* 既存タグと新規タグの視覚的区別 */
+.tag-suggestion.existing-tag {
+  background-color: #e2f0d9;
+  border: 1px solid #c5e0b4;
+}
+
+.tag-suggestion.existing-tag:hover {
+  background-color: #d4e5c5;
+}
+
+.tag-suggestion.existing-tag.selected {
+  background-color: #4caf50;
+  color: white;
+  border-color: #388e3c;
+}
+
+/* キーボード操作のヒント */
+.keyboard-hint {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 1px 5px;
+  background-color: #f1f1f1;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 0.8em;
+  color: #666;
+}

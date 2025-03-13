@@ -4,7 +4,8 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
          
   # 関連付け
-  has_many :bookmarks, dependent: :destroy
+  has_many :prompts, dependent: :destroy
+  has_many :tags, dependent: :destroy
   
   # バリデーション
   validates :name, presence: true
