@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_11_081451) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_15_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,7 +23,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_11_081451) do
     t.datetime "updated_at", null: false
     t.integer "ai_processing_status", default: 0
     t.datetime "ai_processed_at"
-    t.text "tags", default: [], array: true
     t.index ["url", "user_id"], name: "index_prompts_on_url_and_user_id", unique: true
     t.index ["user_id"], name: "index_prompts_on_user_id"
   end

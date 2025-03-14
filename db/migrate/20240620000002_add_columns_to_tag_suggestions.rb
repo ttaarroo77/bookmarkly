@@ -1,3 +1,6 @@
+# 20240620000002_add_columns_to_tag_suggestions.rb - タグ候補カラム追加
+
+
 class AddColumnsToTagSuggestions < ActiveRecord::Migration[6.1]
   def change
     # confidenceカラムが存在しない場合のみ追加

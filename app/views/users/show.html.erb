@@ -1,22 +1,30 @@
-<div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="card">
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h2>マイページ</h2>
+          <%= link_to "プロフィール編集", edit_user_path(@user), class: "btn btn-outline-primary" %>
+        </div>
         <div class="card-body">
-          <h1 class="h3 mb-4">マイプロフィール</h1>
-          
-          <div class="mb-3">
-            <p><strong>名前:</strong> <%= @user.name %></p>
-          </div>
-          
-          <div class="mb-3">
-            <p><strong>メールアドレス:</strong> <%= @user.email %></p>
-          </div>
-          
-          <div class="d-flex">
-            <%= link_to "プロフィール編集", mypage_edit_path, class: "btn btn-dark me-2" %>
-            <%= link_to "ブックマーク一覧", prompts_path, class: "btn btn-outline-secondary" %>
-          </div>
+          <h3><%= @user.name %></h3>
+          <p><%= @user.email %></p>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h3>マイプロンプト一覧</h3>
+          <%= link_to "新規プロンプト作成", new_prompt_path, class: "btn btn-primary" %>
+        </div>
+        <div class="card-body">
+          <% if @prompts.present? %>
+            <div class="row">
+              <%= render partial: "prompts/prompt", collection: @prompts %>
+            </div>
+          <% else %>
+            <p class="text-center py-4">プロンプトがまだありません。新しいプロンプトを追加しましょう！</p>
+          <% end %>
         </div>
       </div>
     </div>

@@ -1,3 +1,6 @@
+# 20250226095318_create_prompts.rb - プロンプトテーブル作成（基本）
+
+
 class CreatePrompts < ActiveRecord::Migration[8.0]
   def change
     create_table :prompts do |t|

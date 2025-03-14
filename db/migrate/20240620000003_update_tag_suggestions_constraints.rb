@@ -1,3 +1,6 @@
+# 20240620000003_update_tag_suggestions_constraints.rb - タグ候補制約更新
+
+
 class UpdateTagSuggestionsConstraints < ActiveRecord::Migration[6.1]
   def change
     # confidenceカラムにデフォルト値を設定

@@ -1,3 +1,6 @@
+# app/controllers/prompts_controller.rb - テスト対象のコントローラー
+
+
 class PromptsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_prompt, only: [:show, :edit, :update, :destroy, :apply_tag_suggestion]
@@ -42,38 +45,31 @@ class PromptsController < ApplicationController
   
   # 新規プロンプトフォーム
   def new
-    @prompt = Prompt.new
-    # URLパラメータがある場合はURLのみ設定し、AIタグ候補を取得
-    if params[:url].present?
-      @prompt.url = params[:url]
-      @tag_suggestions = AiTagSuggester.new(current_user).suggest_tags_for_url(@prompt.url)
-    end
+    @prompt = current_user.prompts.new
   end
 
   # プロンプト編集フォーム
   def edit
+    @prompt = current_user.prompts.find(params[:id])
+    # タグ提案を取得
+    @tag_suggestions = @prompt.tag_suggestions.order(count: :desc).limit(10)
   end
   
   # プロンプト作成
   def create
-    @prompt = current_user.prompts.build(prompt_params)
-    
-    if @prompt.save
-      # タグ候補生成ジョブを実行
-      GenerateTagSuggestionsJob.perform_later(@prompt.id)
-      
-      # AI説明文生成（実装されている場合）
-      @prompt.generate_description if @prompt.respond_to?(:generate_description)
-      
-      flash[:success] = "プロンプトを保存しました。AIによるタグ候補を生成中です。"
-      redirect_to prompts_path
-    else
-      # URLが重複している場合は既存のプロンプトへのリンクを表示するため、
-      # 既存のプロンプトを@existing_promptとして渡す
-      if @prompt.errors[:url].include?("は既に登録されています")
-        @existing_prompt = current_user.prompts.find_by(url: @prompt.url)
+    @prompt = current_user.prompts.new(prompt_params)
+
+    respond_to do |format|
+      if @prompt.save
+        # AIによるタグ提案を開始
+        @prompt.generate_tag_suggestions if @prompt.respond_to?(:generate_tag_suggestions)
+        
+        format.html { redirect_to @prompt, notice: 'プロンプトを作成しました。' }
+        format.json { render :show, status: :created, location: @prompt }
+      else
+        format.html { render :new }
+        format.json { render json: @prompt.errors, status: :unprocessable_entity }
       end
-      render :new, status: :unprocessable_entity
     end
   end
   
@@ -102,8 +98,9 @@ class PromptsController < ApplicationController
       # タグの更新後に未使用タグを削除
       Tag.cleanup_unused_tags if Tag.respond_to?(:cleanup_unused_tags)
       
-      flash[:success] = "プロンプトを更新しました"
-      redirect_to prompts_path # 直接プロンプトまとめページにリダイレクト
+      # 修正: flash[:notice]を使用し、詳細ページにリダイレクト
+      flash[:notice] = "プロンプトを更新しました"
+      redirect_to @prompt  # 詳細ページにリダイレクト
     else
       render :edit, status: :unprocessable_entity
     end
@@ -146,6 +143,18 @@ class PromptsController < ApplicationController
         head :ok
       end
     end
+  end
+  
+  def generate_description
+    @prompt = current_user.prompts.find(params[:id])
+    @prompt.generate_description
+    redirect_to @prompt, notice: 'AI説明文の生成を開始しました。しばらくお待ちください。'
+  end
+  
+  def generate_tag_suggestions
+    @prompt = current_user.prompts.find(params[:id])
+    @prompt.generate_tag_suggestions
+    redirect_to @prompt, notice: 'AIタグ提案の生成を開始しました。しばらくお待ちください。'
   end
   
   private

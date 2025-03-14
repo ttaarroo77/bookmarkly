@@ -1,3 +1,6 @@
+# 20250307140311_add_unique_index_to_prompts.rb - ユニークインデックス追加
+
+
 class AddUniqueIndexToPrompts < ActiveRecord::Migration[8.0]
   def change
     # 既存の重複データがある場合は事前にクリーンアップが必要

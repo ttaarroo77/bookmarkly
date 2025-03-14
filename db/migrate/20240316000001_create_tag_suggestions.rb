@@ -1,3 +1,6 @@
+# 20240316000001_create_tag_suggestions.rb - タグ候補テーブル作成
+
+
 class CreateTagSuggestions < ActiveRecord::Migration[7.1]
   def change
     create_table :tag_suggestions do |t|

@@ -1,41 +1,53 @@
+<%# app/views/prompts/_form.html.erb - プロンプト作成・編集フォーム %>
+
+
+
 <div id="prompt_form">
-  <%= form_with(model: prompt, local: true) do |f| %>
-    <div class="mb-3">
-      <%= f.label :url, "URL", class: "form-label" %>
-      <%= f.text_field :url, class: "form-control" %>
-    </div>
-    
-    <div class="mb-3">
-      <%= f.label :title, "タイトル", class: "form-label" %>
-      <%= f.text_field :title, class: "form-control" %>
-    </div>
-    
-    <div class="mb-3">
-      <%= f.label :description, "説明", class: "form-label" %>
-      <%= f.text_area :description, class: "form-control", rows: 3 %>
-    </div>
-    
-    <div class="mb-3">
-      <%= f.label :tags_text, "タグ（カンマ区切り）", class: "form-label" %>
-      <%= f.text_field :tags_text, class: "form-control" %>
-    </div>
-    
-    <% if prompt.persisted? && prompt.respond_to?(:tag_suggestions) && prompt.tag_suggestions.exists? %>
-      <div class="tag-suggestions mt-2">
-        <p class="text-muted mb-2">タグ候補:</p>
-        <div class="d-flex flex-wrap gap-2">
-          <% prompt.tag_suggestions.where(applied: false).each do |suggestion| %>
-            <%= link_to suggestion.name, apply_tag_suggestion_prompt_path(prompt, suggestion_id: suggestion.id),
-                method: :post,
-                class: "badge bg-light text-dark p-2" %>
+  <%= form_with(model: prompt, local: true) do |form| %>
+    <% if prompt.errors.any? %>
+      <div class="alert alert-danger">
+        <h4><%= pluralize(prompt.errors.count, "error") %> prohibited this prompt from being saved:</h4>
+        <ul>
+          <% prompt.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
           <% end %>
-        </div>
+        </ul>
       </div>
     <% end %>
+
+    <div class="mb-3">
+      <%= form.label :url, "URL", class: "form-label" %>
+      <%= form.text_field :url, class: "form-control" %>
+    </div>
     
-    <div class="d-flex justify-content-end gap-2">
-      <%= link_to "戻る", prompts_path, class: "btn btn-outline-secondary" %>
-      <%= f.submit "保存", class: "btn btn-dark" %>
+    <div class="mb-3">
+      <%= form.label :title, "タイトル", class: "form-label" %>
+      <%= form.text_field :title, class: "form-control" %>
+    </div>
+    
+    <div class="mb-3">
+      <%= form.label :content, "説明", class: "form-label" %>
+      <%= form.text_area :content, rows: 5, class: "form-control" %>
+      <% if prompt.ai_processing_status == 'processing' %>
+        <div class="mt-2">
+          <small class="text-muted">
+            <i class="fas fa-spinner fa-spin me-1"></i> AI説明文を生成中...
+          </small>
+        </div>
+      <% end %>
+    </div>
+    
+    <div class="mb-3">
+      <%= form.label :tags_text, "タグ（カンマ区切り）", class: "form-label" %>
+      <%= form.text_field :tags_text, value: prompt.tags.map(&:name).join(', '), class: "form-control", id: "prompt_tags_text" %>
+      
+      <%# タグ提案コンポーネントを表示 %>
+      <%= render 'tag_suggestions' %>
+    </div>
+    
+    <div class="d-flex justify-content-between mt-4">
+      <%= link_to '戻る', prompts_path, class: "btn btn-outline-secondary" %>
+      <%= form.submit '保存', class: "btn btn-primary" %>
     </div>
   <% end %>
 </div> 

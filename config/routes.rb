@@ -1,35 +1,33 @@
 Rails.application.routes.draw do
-  devise_for :users
+  # Deviseのルート設定を最初に配置
+  devise_for :users, controllers: {
+    registrations: 'users/registrations',
+    sessions: 'users/sessions'
+  }
   
-  # ルートパスの設定
-  root 'prompts#index'
+  # マイページのルート追加
+  get 'mypage', to: 'users#show', as: :mypage
   
-  # ブックマーク関連のルーティング
+  # プロンプトリソース
   resources :prompts do
     member do
-      post 'apply_tag_suggestion/:suggestion_id', to: 'prompts#apply_tag_suggestion', as: :apply_tag_suggestion
-      post 'apply_tag_suggestion'
+      post :generate_description
+      post :generate_tag_suggestions
+    end
+    collection do
+      get :search
     end
   end
   
-  # ユーザー関連のルーティング
-  get 'mypage', to: 'users#show', as: :mypage
-  get 'mypage/edit', to: 'users#edit', as: :mypage_edit
-  patch 'mypage', to: 'users#update'
+  # タグリソース
+  resources :tags, only: [:index, :show, :destroy]
   
-  # タグ関連のルーティング（必要な場合）
-  get 'prompts/tag/:tag', to: 'prompts#index', as: :prompts_by_tag
-
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
-  get "up" => "rails/health#show", as: :rails_health_check
-
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
-
-  # Defines the root path route ("/")
-  # root "posts#index"
+  # ユーザー関連
+  resources :users, only: [:show, :edit, :update]
+  
+  # ルートパス
+  root 'prompts#index'
+  
+  # その他のルート
+  # ...
 end

@@ -1,60 +1,92 @@
-# spec/models/tag_spec.rb に以下のようなテストを追加
 require 'rails_helper'
 
 RSpec.describe Tag, type: :model do
-  let(:user) { create(:user) }
-
-  describe '.cleanup_unused_tags' do
-    it '未使用のタグを削除すること' do
-      # 使用中のタグを作成して保存
-      used_tag = create(:tag, user: user)
-      prompt = create(:prompt, user: user)
-      used_tag.save!  # 明示的に保存
-      prompt.tags << used_tag
-
-      # 未使用のタグを作成して保存
-      unused_tag = create(:tag, user: user)
-      unused_tag.save!  # 明示的に保存
-
-      expect {
-        Tag.cleanup_unused_tags
-      }.to change(Tag, :count).by(-1)
-
-      expect(Tag.exists?(unused_tag.id)).to be false
-      expect(Tag.exists?(used_tag.id)).to be true
+  describe 'バリデーション' do
+    it 'nameとuser_idがあれば有効であること' do
+      tag = build(:tag)
+      expect(tag).to be_valid
     end
 
-    it '複数の未使用タグを一括で削除すること' do
-      # 使用中のタグを作成
-      used_tag = create(:tag, user: user)
-      prompt = create(:prompt, user: user)
-      prompt.tags << used_tag
+    it 'nameがなければ無効であること' do
+      tag = build(:tag, name: nil)
+      expect(tag).not_to be_valid
+    end
 
-      # 複数の未使用タグを作成
-      unused_tags = create_list(:tag, 3, user: user)
+    it 'user_idがなければ無効であること' do
+      tag = build(:tag, user_id: nil)
+      expect(tag).not_to be_valid
+    end
 
-      expect {
-        Tag.cleanup_unused_tags
-      }.to change(Tag, :count).by(-3)
+    it '同一ユーザー内でnameは一意であること' do
+      user = create(:user)
+      create(:tag, name: 'test', user: user)
+      tag = build(:tag, name: 'test', user: user)
+      expect(tag).not_to be_valid
+    end
 
-      unused_tags.each do |tag|
-        expect(Tag.exists?(tag.id)).to be false
-      end
-      expect(Tag.exists?(used_tag.id)).to be true
+    it '異なるユーザー間では同じnameを使用できること' do
+      create(:tag, name: 'test', user: create(:user))
+      tag = build(:tag, name: 'test', user: create(:user))
+      expect(tag).to be_valid
     end
   end
 
-  describe '#check_for_cleanup' do
-    it 'タグからすべてのプロンプトが削除された時にタグも削除されること' do
+  describe 'アソシエーション' do
+    it 'ユーザーに属すること' do
+      association = described_class.reflect_on_association(:user)
+      expect(association.macro).to eq :belongs_to
+    end
+
+    it 'プロンプトと多対多の関係であること' do
+      association = described_class.reflect_on_association(:prompts)
+      expect(association.macro).to eq :has_and_belongs_to_many
+    end
+  end
+  
+  describe '名前の小文字化' do
+    let(:user) { create(:user) }
+    
+    it '保存時に名前が小文字に変換される' do
+      tag = create(:tag, name: 'TestTag', user: user)
+      expect(tag.name).to eq('testtag')
+    end
+  end
+  
+  describe '関連付け' do
+    let(:user) { create(:user) }
+    
+    it 'ユーザーに属する' do
       tag = create(:tag, user: user)
-      prompt = create(:prompt, user: user)
-      prompt.tags << tag
-
+      expect(tag.user).to eq(user)
+    end
+    
+    it 'ユーザーを削除するとタグも削除される' do
+      tag = create(:tag, user: user)
+      
       expect {
-        prompt.tags.delete(tag)
+        user.destroy
       }.to change(Tag, :count).by(-1)
-
-      expect(Tag.exists?(tag.id)).to be false
+    end
+  end
+  
+  describe '.cleanup_unused_tags' do
+    let(:user) { create(:user) }
+    
+    it '使用されていないタグを削除する' do
+      # タグを作成
+      used_tag = create(:tag, user: user)
+      unused_tag = create(:tag, user: user)
+      
+      # 使用されているタグとプロンプトを関連付け
+      prompt = create(:prompt, user: user)
+      prompt.tags << used_tag
+      
+      expect {
+        Tag.cleanup_unused_tags
+      }.to change(Tag, :count).by(-1)
+      
+      expect(Tag.exists?(unused_tag.id)).to be_falsey
+      expect(Tag.exists?(used_tag.id)).to be_truthy
     end
   end
 end

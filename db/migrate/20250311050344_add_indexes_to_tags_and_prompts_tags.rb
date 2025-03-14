@@ -1,5 +1,5 @@
-   # 新しいマイグレーションを作成
-   # rails generate migration AddIndexesToTagsAndPromptsTags
+# db/migrate/20250311050344_add_indexes_to_tags_and_prompts_tags.rb - タグインデックス追加
+
    
    class AddIndexesToTagsAndPromptsTags < ActiveRecord::Migration[7.0]
     def change

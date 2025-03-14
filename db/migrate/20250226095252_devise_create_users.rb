@@ -1,3 +1,6 @@
+# 20250226095252_devise_create_users.rb - Deviseユーザーテーブル作成（基本）
+
+
 # frozen_string_literal: true
 
 class DeviseCreateUsers < ActiveRecord::Migration[8.0]

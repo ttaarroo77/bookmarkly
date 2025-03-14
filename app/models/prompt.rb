@@ -1,3 +1,6 @@
+# app/models/prompt.rb - プロンプトモデル
+
+
 class Prompt < ApplicationRecord
   belongs_to :user
   has_and_belongs_to_many :tags
@@ -16,25 +19,12 @@ class Prompt < ApplicationRecord
   before_validation :normalize_url
   
   # タグをカンマ区切りの文字列として取得するゲッター
-  def tags_text
-    tags.map(&:name).join(', ') if tags.present?
-  end
+  attr_accessor :tags_text
+  after_save :save_tags, if: -> { !@tags_text.nil? }
   
   # タグをカンマ区切りの文字列からセットするセッター
   def tags_text=(text)
-    return if text.blank?
-    
-    # 既存のタグ関連をクリア
-    self.tags.clear
-    
-    # 新しいタグを追加
-    text.split(',').map(&:strip).reject(&:empty?).uniq.each do |tag_name|
-      # ユーザーが存在する場合のみタグを作成
-      if self.user.present?
-        tag = self.user.tags.find_or_initialize_by(name: tag_name.downcase)
-        self.tags << tag unless self.tags.include?(tag)
-      end
-    end
+    @tags_text = text
   end
   
   # タグで検索するスコープ
@@ -63,6 +53,12 @@ class Prompt < ApplicationRecord
     update(ai_processing_status: :processing)
     GenerateDescriptionJob.perform_later(id)
   end
+  
+  # AIタグ提案の開始
+  def generate_tag_suggestions
+    update(ai_processing_status: :processing)
+    GenerateTagSuggestionsJob.perform_later(id)
+  end
 
   private
 
@@ -71,5 +67,25 @@ class Prompt < ApplicationRecord
     self.url = url.strip.downcase
     # URLがhttp(s)://で始まっていない場合、https://を追加
     self.url = "https://#{url}" unless url.start_with?('http://', 'https://')
+  end
+
+  def save_tags
+    return if @tags_text.blank?
+    
+    # 既存のタグを一旦クリア
+    self.tags.clear
+    
+    # タグを保存
+    tag_names = @tags_text.split(/,|\s+/).map(&:strip).uniq.reject(&:blank?)
+    tag_names.each do |name|
+      next if name.blank?
+      tag = Tag.find_or_create_by(name: name.downcase, user_id: self.user_id)
+      self.tags << tag unless self.tags.include?(tag)
+    end
+  end
+
+  def cleanup_unused_tags
+    # プロンプト削除後に未使用タグをクリーンアップ
+    Tag.cleanup_unused_tags if Tag.respond_to?(:cleanup_unused_tags)
   end
 end

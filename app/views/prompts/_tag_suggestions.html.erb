@@ -1,18 +1,67 @@
-<% if prompt.tag_suggestions.where(applied: false).exists? %>
-  <div class="mb-4">
-    <h2 class="h5 mb-2">タグ候補</h2>
-    <div class="d-flex flex-wrap gap-2">
-      <% prompt.tag_suggestions.where(applied: false).order(confidence: :desc).each do |suggestion| %>
-        <div class="d-flex align-items-center">
-          <%= link_to apply_tag_suggestion_prompt_path(prompt, suggestion_id: suggestion.id), 
-                      method: :post, 
-                      class: "badge bg-light text-dark text-decoration-none d-flex align-items-center" do %>
-            <span><%= suggestion.name %></span>
-            <span class="ms-1 text-muted">(<%= number_to_percentage(suggestion.confidence * 100, precision: 0) %>)</span>
-            <span class="ms-1 text-primary">+</span>
-          <% end %>
-        </div>
+# app/views/prompts/_tag_suggestions.html.erb - タグ候補表示
+
+
+
+<% if @prompt.ai_processing_status == 'processing' %>
+  <div class="tag-suggestions-loading mt-2">
+    <small class="text-muted">
+      <i class="fas fa-spinner fa-spin me-1"></i> AIがタグを分析中...
+    </small>
+  </div>
+<% elsif @prompt.ai_processing_status == 'completed' && @prompt.tag_suggestions.present? %>
+  <div class="tag-suggestions mt-2">
+    <small class="text-muted">推奨タグ:</small>
+    <div class="d-flex flex-wrap gap-1 mt-1">
+      <% @prompt.tag_suggestions.each do |suggestion| %>
+        <button type="button" class="btn btn-sm btn-outline-secondary tag-suggestion-btn" 
+                data-tag="<%= suggestion.name %>" 
+                onclick="addTagToInput(this)">
+          <%= suggestion.name %>
+        </button>
       <% end %>
     </div>
   </div>
 <% end %>
+
+<script>
+  function addTagToInput(btn) {
+    const tagName = btn.getAttribute('data-tag');
+    const tagInput = document.getElementById('prompt_tags_text');
+    
+    // 現在の入力値を取得
+    let currentTags = tagInput.value.trim();
+    
+    // タグを追加（既に入力がある場合はカンマで区切る）
+    if (currentTags) {
+      // カンマで区切られたタグをリストに変換
+      let tagList = currentTags.split(/,\s*/);
+      
+      // 既に同じタグが含まれていないか確認
+      if (!tagList.includes(tagName)) {
+        tagInput.value = currentTags + ', ' + tagName;
+      }
+    } else {
+      tagInput.value = tagName;
+    }
+    
+    // ボタンのスタイルを変更して選択済みを示す
+    btn.classList.remove('btn-outline-secondary');
+    btn.classList.add('btn-secondary');
+    
+    // フォーカスを入力欄に戻す
+    tagInput.focus();
+  }
+</script>
+
+<style>
+  .tag-suggestions .btn {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+  }
+  
+  .tag-suggestion-btn:hover {
+    background-color: #6c757d;
+    color: white;
+  }
+</style>

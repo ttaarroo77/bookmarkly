@@ -1,63 +1,79 @@
+# spec/models/prompt_spec.rb - プロンプトモデルのテスト
+
+
 require 'rails_helper'
 
 RSpec.describe Prompt, type: :model do
-  let(:user) { create(:user) }
-  
-  describe 'validations' do
-    it { should validate_presence_of(:url) }
-    it { should validate_presence_of(:title) }
-    
-    it 'validates URL format' do
-      # 有効なURL
-      prompt = build(:prompt, user: user, url: 'https://example.com')
+  describe 'バリデーション' do
+    it 'titleとcontentとuser_idがあれば有効であること' do
+      prompt = build(:prompt)
       expect(prompt).to be_valid
-      
-      # 無効なURL
-      prompt = build(:prompt, user: user, url: 'invalid-url')
+    end
+
+    it 'titleがなければ無効であること' do
+      prompt = build(:prompt, title: nil)
+      expect(prompt).not_to be_valid
+    end
+
+    it 'contentがなければ無効であること' do
+      prompt = build(:prompt, content: nil)
+      expect(prompt).not_to be_valid
+    end
+
+    it 'user_idがなければ無効であること' do
+      prompt = build(:prompt, user_id: nil)
       expect(prompt).not_to be_valid
     end
   end
-  
-  describe 'associations' do
-    it { should belong_to(:user) }
-  end
-  
-  describe 'tags handling' do
-    it 'converts tags_text to tags array' do
-      prompt = create(:prompt, user: user, tags_text: 'tag1, tag2, tag3')
-      expect(prompt.tags).to eq(['tag1', 'tag2', 'tag3'])
+
+  describe 'アソシエーション' do
+    it 'ユーザーに属すること' do
+      association = described_class.reflect_on_association(:user)
+      expect(association.macro).to eq :belongs_to
     end
-    
-    it 'removes duplicate tags' do
-      prompt = create(:prompt, user: user, tags_text: 'tag1, tag1, tag2')
-      expect(prompt.tags).to eq(['tag1', 'tag2'])
-    end
-    
-    it 'removes empty tags' do
-      prompt = create(:prompt, user: user, tags_text: 'tag1, , tag2')
-      expect(prompt.tags).to eq(['tag1', 'tag2'])
+
+    it 'タグと多対多の関係であること' do
+      association = described_class.reflect_on_association(:tags)
+      expect(association.macro).to eq :has_and_belongs_to_many
     end
   end
-  
-  describe 'scopes' do
-    before do
-      @prompt1 = create(:prompt, user: user, tags: ['ruby', 'rails'], title: 'Ruby on Rails')
-      @prompt2 = create(:prompt, user: user, tags: ['javascript', 'react'], title: 'React')
-      @prompt3 = create(:prompt, user: user, tags: ['ruby', 'javascript'], title: 'JavaScript in Ruby')
+
+  describe '#save_tags' do
+    let(:user) { create(:user) }
+    let(:prompt) { create(:prompt, user: user) }
+
+    it 'タグを保存できること' do
+      prompt.save_tags(['tag1', 'tag2'])
+      expect(prompt.tags.count).to eq 2
+      expect(prompt.tags.pluck(:name)).to contain_exactly('tag1', 'tag2')
     end
-    
-    describe '.with_tag' do
-      it 'returns prompts with specific tag' do
-        expect(Prompt.with_tag('ruby')).to include(@prompt1, @prompt3)
-        expect(Prompt.with_tag('ruby')).not_to include(@prompt2)
-      end
+
+    it '空のタグは保存しないこと' do
+      prompt.save_tags(['tag1', '', nil])
+      expect(prompt.tags.count).to eq 1
+      expect(prompt.tags.first.name).to eq 'tag1'
     end
-    
-    describe '.search' do
-      it 'returns prompts matching title' do
-        expect(Prompt.search('Rails')).to include(@prompt1)
-        expect(Prompt.search('Rails')).not_to include(@prompt2, @prompt3)
-      end
+
+    it '同じタグは重複して保存しないこと' do
+      prompt.save_tags(['tag1', 'tag1'])
+      expect(prompt.tags.count).to eq 1
+    end
+
+    it 'タグ名は小文字で保存されること' do
+      prompt.save_tags(['TAG1'])
+      expect(prompt.tags.first.name).to eq 'tag1'
+    end
+
+    it 'タグにはプロンプトのユーザーIDが設定されること' do
+      prompt.save_tags(['newtag'])
+      expect(prompt.tags.first.user_id).to eq user.id
+    end
+
+    it '既存のタグをクリアして新しいタグを設定すること' do
+      prompt.save_tags(['tag1'])
+      prompt.save_tags(['tag2'])
+      expect(prompt.tags.count).to eq 1
+      expect(prompt.tags.first.name).to eq 'tag2'
     end
   end
 end

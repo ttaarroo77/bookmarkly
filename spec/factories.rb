@@ -1,19 +1,11 @@
-FactoryBot.define do
-  factory :user do
-    sequence(:email) { |n| "user#{n}@example.com" }
-    sequence(:name) { |n| "User #{n}" }
-    password { "password123" }
-    password_confirmation { "password123" }
-  end
+# spec/factories.rb - ファクトリの定義
 
-  factory :prompt do
-    sequence(:title) { |n| "プロンプト#{n}" }
-    sequence(:url) { |n| "https://example.com/prompt#{n}" }
-    user
-  end
+# このファイルは個別のファクトリファイルを読み込むためのものです
+# 直接のファクトリ定義はspec/factories/ディレクトリ内の各ファイルに移動しました
 
-  factory :tag do
-    sequence(:name) { |n| "タグ#{n}" }
-    user
-  end
-end 
+# 以下のようなコードがあれば削除またはコメントアウトする
+# FactoryBot.define do
+#   factory :tag do
+#     # 重複している定義
+#   end
+# end

@@ -1,3 +1,6 @@
+# app/controllers/tags_controller.rb - タグ操作のコントローラー
+
+
 class TagsController < ApplicationController
   before_action :authenticate_user!
   

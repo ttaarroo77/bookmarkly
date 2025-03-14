@@ -1,3 +1,7 @@
+# config/initializers/devise.rb - Deviseの初期化設定
+
+puts "Loading Devise initializer..."
+
 # frozen_string_literal: true
 
 # Assuming you have not yet modified this file, each configuration option below
@@ -9,12 +13,17 @@
 # Use this hook to configure devise mailer, warden hooks and so forth.
 # Many of these configuration options can be set straight in your model.
 Devise.setup do |config|
+  # テスト環境でのログを追加
+  if Rails.env.test?
+    puts "Configuring Devise for test environment"
+  end
+
   # The secret key used by Devise. Devise uses this key to generate
   # random tokens. Changing this key will render invalid all existing
   # confirmation, reset password and unlock tokens in the database.
   # Devise will use the `secret_key_base` as its `secret_key`
   # by default. You can change it below and use your own secret key.
-  # config.secret_key = '398d6555e8efa39dcb30ca60dea40907287f7e45946d8e30e39873f53a571af3d688391cbb589854641a9f0e3749fdad13a7de91a31b050bffd562ac000250d8'
+  # config.secret_key = 'your-secret-key'
 
   # ==> Controller configuration
   # Configure the parent class to the devise controllers.
@@ -126,7 +135,7 @@ Devise.setup do |config|
   config.stretches = Rails.env.test? ? 1 : 12
 
   # Set up a pepper to generate the hashed password.
-  # config.pepper = '64134c125b0658af31438ecca2fbdd332a278fd57b6e4964b06d18bef61b0af2d3b9c5fa13c61b2afd633c8e82937ab490b65cd1c8920b3a57d36f8fc72e2bb4'
+  # config.pepper = 'your-pepper-string'
 
   # Send a notification to the original email when the user's email is changed.
   # config.send_email_changed_notification = false
@@ -217,7 +226,6 @@ Devise.setup do |config|
   # config.last_attempt_warning = true
 
   # ==> Configuration for :recoverable
-  #
   # Defines which key will be used when recovering the password for an account
   # config.reset_password_keys = [:email]
 
@@ -248,7 +256,7 @@ Devise.setup do |config|
 
   # Configure the default scope given to Warden. By default it's the first
   # devise role declared in your routes (usually :user).
-  # config.default_scope = :user
+  config.default_scope = :user
 
   # Set this configuration to false if you want /users/sign_out to sign out
   # only the current scope. By default, Devise signs out all scopes.
@@ -310,4 +318,22 @@ Devise.setup do |config|
   # When set to false, does not sign a user in automatically after their password is
   # changed. Defaults to true, so a user is signed in automatically after changing a password.
   # config.sign_in_after_change_password = true
+  
+  # テスト環境でのログインを有効化
+  config.paranoid = Rails.env.test? ? false : true
+
+  # テスト環境ではストレッチ回数を最小に
+  config.stretches = Rails.env.test? ? 1 : 12
+  
+  # テスト環境では認証キーを大文字小文字区別なしに
+  config.case_insensitive_keys = [:email]
+  
+  # テスト環境ではデフォルトスコープを明示的に設定
+  config.default_scope = :user
+  
+  # テスト環境ではWardenのテストモードを有効化
+  if Rails.env.test?
+    Warden.test_mode!
+    puts "Warden test mode enabled in devise.rb initializer"
+  end
 end

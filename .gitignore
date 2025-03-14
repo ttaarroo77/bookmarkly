@@ -33,3 +33,7 @@
 /public/assets
 backup*.sql
 _site/
+
+# Ignore test backups
+/test_backup_*
+/test_backup_20250314/
